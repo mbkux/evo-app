@@ -6,6 +6,7 @@
     <title>EVO Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body {
             background-color: var(--tg-theme-bg-color, #1c1c1e);
@@ -20,24 +21,26 @@
             background: linear-gradient(45deg, #ff0055, #00ddff);
             border-radius: 50%; margin: 0 auto 10px;
             display: flex; align-items: center; justify-content: center; font-size: 30px;
-            border: 3px solid #2c2c2e;
+            border: 3px solid #2c2c2e; position: relative;
         }
         
-        /* --- НОВЫЙ БЛОК: УРОВЕНЬ И XP --- */
         .level-badge {
             background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 10px;
             font-size: 12px; font-weight: bold; position: relative; top: -10px;
         }
-        .xp-bar-container {
-            background: #333; height: 8px; border-radius: 4px; width: 60%; margin: 5px auto; overflow: hidden;
+        
+        /* 🔥 ОГОНЬ (СТРИК) */
+        .streak-badge {
+            position: absolute; right: -5px; bottom: 0;
+            background: #ff3b30; color: white; padding: 4px 8px; border-radius: 12px;
+            font-size: 12px; font-weight: bold; border: 2px solid #1c1c1e;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
-        .xp-bar-fill {
-            height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); /* Фиолетовый градиент */
-            width: 0%; transition: width 1s ease-out;
-        }
+
+        .xp-bar-container { background: #333; height: 8px; border-radius: 4px; width: 60%; margin: 5px auto; overflow: hidden; }
+        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s ease-out; }
         .xp-text { font-size: 11px; opacity: 0.6; margin-bottom: 15px; }
 
-        /* КАРТОЧКИ */
         .card {
             background-color: var(--tg-theme-secondary-bg-color, #2c2c2e);
             border-radius: 14px; padding: 15px; margin-bottom: 15px;
@@ -52,7 +55,6 @@
         }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
 
-        /* ЧЕКБОКСЫ */
         .habit-row {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -82,13 +84,13 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="avatar">🦍</div>
+            <div class="avatar">
+                🦍
+                <div class="streak-badge" id="streak-val">🔥 0</div>
+            </div>
             <span class="level-badge" id="lvl-badge">LVL 1</span>
             <h3 style="margin: 5px 0;">Миша EVO</h3>
-            
-            <div class="xp-bar-container">
-                <div class="xp-bar-fill" id="xp-fill"></div>
-            </div>
+            <div class="xp-bar-container"><div class="xp-bar-fill" id="xp-fill"></div></div>
             <div class="xp-text" id="xp-text">0 / 100 XP</div>
         </div>
 
@@ -104,7 +106,7 @@
         </div>
 
         <div class="card">
-            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">План на сегодня (+10 XP каждый)</div>
+            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">План на сегодня</div>
             <div class="habit-row"><span>🚫 Без Сахара</span><label class="switch"><input type="checkbox" id="h_sugar"><span class="slider"></span></label></div>
             <div class="habit-row"><span>💧 Вода (2л)</span><label class="switch"><input type="checkbox" id="h_water"><span class="slider"></span></label></div>
             <div class="habit-row"><span>🚶‍♂️ Шаги (10к)</span><label class="switch"><input type="checkbox" id="h_steps"><span class="slider"></span></label></div>
@@ -126,19 +128,18 @@
 
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
-
         const params = new URLSearchParams(window.location.search);
         
-        // --- 1. ЛОГИКА ОПЫТА ---
-        // Получаем уровень и XP из URL (их пришлет бот)
+        // Данные
         const lvl = params.get('lvl') || '1';
-        const xp = params.get('xp') || '0'; // Текущий XP внутри уровня (0-99)
+        const xp = params.get('xp') || '0'; 
+        const streak = params.get('st') || '0'; // Стрик
         
         document.getElementById('lvl-badge').innerText = 'LVL ' + lvl;
         document.getElementById('xp-fill').style.width = xp + '%';
         document.getElementById('xp-text').innerText = xp + ' / 100 XP';
+        document.getElementById('streak-val').innerText = '🔥 ' + streak; // Рисуем огонь
 
-        // --- 2. ОСТАЛЬНОЕ ---
         document.getElementById('weight-val').innerText = params.get('w') || '110.2';
         document.getElementById('debt-val').innerText = params.get('d') || '4.7';
 
@@ -148,34 +149,40 @@
         document.getElementById('h_pills').checked = params.get('hp') === '1';
 
         // График
-        const hStr = params.get('h') || params.get('w') || '110'; 
+        const hStr = params.get('h') || '110'; 
         const hData = hStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
         const gr = ctx.createLinearGradient(0,0,0,150);
-        gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); // Фиолетовый под графиком
+        gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)');
         gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
 
         new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: hData.map((_, i) => i + 1),
-                datasets: [{
-                    data: hData, borderColor: '#a855f7', backgroundColor: gr,
-                    borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3
-                }]
-            },
+            data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true } } }
         });
 
         function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
+        
+        // --- 💥 ФЕЙЕРВЕРК ПРИ СОХРАНЕНИИ ---
         function saveAll() {
-            tg.sendData(JSON.stringify({
-                type: 'batch_habits',
-                sugar: document.getElementById('h_sugar').checked,
-                water: document.getElementById('h_water').checked,
-                steps: document.getElementById('h_steps').checked,
-                pills: document.getElementById('h_pills').checked
-            }));
+            // Запускаем конфетти
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+            });
+
+            // Ждем 1 секунду, чтобы насладиться салютом, потом отправляем
+            setTimeout(() => {
+                tg.sendData(JSON.stringify({
+                    type: 'batch_habits',
+                    sugar: document.getElementById('h_sugar').checked,
+                    water: document.getElementById('h_water').checked,
+                    steps: document.getElementById('h_steps').checked,
+                    pills: document.getElementById('h_pills').checked
+                }));
+            }, 1000);
         }
     </script>
 </body>
