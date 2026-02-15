@@ -13,7 +13,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 20px; user-select: none;
         }
-        .container { max-width: 400px; margin: 0 auto; }
+        .container { max-width: 400px; margin: 0 auto; padding-bottom: 50px; }
         .header { text-align: center; margin-bottom: 20px; }
         .avatar {
             width: 60px; height: 60px;
@@ -33,17 +33,36 @@
             font-size: 16px; width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
         }
-        /* Место для графика */
-        .chart-container {
-            position: relative; height: 150px; width: 100%; margin-top: 15px;
+        .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
+
+        /* --- СТИЛИ ДЛЯ ЧЕКБОКСОВ --- */
+        .habit-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
+        .habit-row:last-child { border-bottom: none; }
+        
+        /* Переключатель iOS Style */
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #3a3a3c; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #34c759; } /* Зеленый при включении */
+        input:checked + .slider:before { transform: translateX(22px); }
+
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <div class="avatar">🦍</div>
-            <h3>EVO Analytics</h3>
+            <h3>EVO Protocol</h3>
         </div>
 
         <div class="card">
@@ -54,28 +73,53 @@
                     <button class="edit-btn" onclick="editParam('weight')">✏️</button>
                 </div>
             </div>
-            
             <div class="chart-container">
                 <canvas id="weightChart"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <div class="stat-row">
-                <span>💸 Долг (млн)</span>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <span class="stat-value" id="debt-val">--</span>
-                    <button class="edit-btn" onclick="editParam('debt')">✏️</button>
-                </div>
+            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">План на сегодня</div>
+            
+            <div class="habit-row">
+                <span>🚫 Без Сахара</span>
+                <label class="switch">
+                    <input type="checkbox" id="h_sugar" onchange="toggleHabit('sugar')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="habit-row">
+                <span>💧 Вода (2л)</span>
+                <label class="switch">
+                    <input type="checkbox" id="h_water" onchange="toggleHabit('water')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div class="habit-row">
+                <span>🚶‍♂️ Шаги (10к)</span>
+                <label class="switch">
+                    <input type="checkbox" id="h_steps" onchange="toggleHabit('steps')">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+             <div class="habit-row">
+                <span>💊 Омега-3 / Витамины</span>
+                <label class="switch">
+                    <input type="checkbox" id="h_pills" onchange="toggleHabit('pills')">
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
 
         <div class="card">
             <div class="stat-row">
-                <span>☠️ Висцеральный</span>
+                <span>💸 Долг</span>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <span class="stat-value" id="visc-val">--</span>
-                    <button class="edit-btn" onclick="editParam('visc')">✏️</button>
+                    <span class="stat-value" id="debt-val">--</span>
+                    <button class="edit-btn" onclick="editParam('debt')">✏️</button>
                 </div>
             </div>
         </div>
@@ -83,69 +127,66 @@
 
     <script>
         const tg = Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+        tg.ready(); tg.expand();
 
         // 1. Читаем данные из URL
         const params = new URLSearchParams(window.location.search);
         const w = params.get('w') || '110.2';
         const d = params.get('d') || '4.7';
-        const v = params.get('v') || '14';
         
-        // Читаем историю для графика (строка через запятую "112,111,110.2")
-        const historyStr = params.get('h') || w; 
-        const historyData = historyStr.split(',').map(parseFloat);
+        // Читаем состояние галочек (1 = вкл, 0 = выкл)
+        // Пример URL: ...&hs=1&hw=0&hst=1&hp=0
+        document.getElementById('h_sugar').checked = params.get('hs') === '1';
+        document.getElementById('h_water').checked = params.get('hw') === '1';
+        document.getElementById('h_steps').checked = params.get('hst') === '1';
+        document.getElementById('h_pills').checked = params.get('hp') === '1';
 
-        // 2. Заполняем цифры
+        // Рисуем цифры
         document.getElementById('weight-val').innerText = w;
         document.getElementById('debt-val').innerText = d;
-        document.getElementById('visc-val').innerText = v;
 
-        // 3. РИСУЕМ ГРАФИК
+        // Рисуем график
+        const historyStr = params.get('h') || w; 
+        const historyData = historyStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
-        
-        // Создаем градиент для красоты (красный под графиком)
         const gradient = ctx.createLinearGradient(0, 0, 0, 150);
-        gradient.addColorStop(0, 'rgba(255, 59, 48, 0.5)'); // Красный сверху
-        gradient.addColorStop(1, 'rgba(255, 59, 48, 0.0)'); // Прозрачный снизу
+        gradient.addColorStop(0, 'rgba(52, 199, 89, 0.4)'); // Зеленый оттенок
+        gradient.addColorStop(1, 'rgba(52, 199, 89, 0.0)');
 
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: historyData.map((_, i) => i + 1), // Просто номера 1, 2, 3...
+                labels: historyData.map((_, i) => i + 1),
                 datasets: [{
-                    label: 'Вес',
                     data: historyData,
-                    borderColor: '#ff3b30', // Красная линия
+                    borderColor: '#34c759', // Зеленая линия успеха
                     backgroundColor: gradient,
-                    borderWidth: 2,
-                    pointRadius: 3,
-                    fill: true,
-                    tension: 0.4 // Плавные линии (безье)
+                    borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } }, // Скрыть легенду
-                scales: {
-                    x: { display: false }, // Скрыть ось X
-                    y: { 
-                        display: true, 
-                        grid: { color: 'rgba(255,255,255,0.1)' },
-                        ticks: { color: '#888' }
-                    }
-                }
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { display: false }, y: { display: true, ticks: { color: '#666' }, grid: { color: '#333' } } }
             }
         });
 
-        // 4. Функция редактирования
+        // Функция редактирования (Старая)
         function editParam(type) {
-            let title = "Введите новое значение:";
-            let value = prompt(title);
-            if (value) {
-                tg.sendData(JSON.stringify({ type: type, value: value.replace(',', '.') }));
-            }
+            let val = prompt("Новое значение:");
+            if(val) tg.sendData(JSON.stringify({ type: type, value: val.replace(',', '.') }));
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: ОТПРАВКА ГАЛОЧКИ ---
+        function toggleHabit(habitName) {
+            const isChecked = document.getElementById('h_' + habitName).checked;
+            // Отправляем боту: type='habit', name='sugar', value=true/false
+            const data = JSON.stringify({
+                type: 'habit',
+                name: habitName,
+                value: isChecked
+            });
+            tg.sendData(data);
         }
     </script>
 </body>
