@@ -13,64 +13,30 @@
             margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .container { max-width: 400px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 20px; }
         .avatar {
-            width: 80px;
-            height: 80px;
+            width: 80px; height: 80px;
             background: linear-gradient(45deg, #ff0055, #00ddff);
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border-radius: 50%; margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 32px;
         }
         .card {
             background-color: var(--tg-theme-secondary-bg-color, #2c2c2e);
-            border-radius: 14px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            border-radius: 14px; padding: 15px; margin-bottom: 15px;
         }
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.7;
-        }
-        .stat-value {
-            font-size: 18px;
-            font-weight: bold;
-        }
+        .stat-label { font-size: 14px; opacity: 0.7; }
+        .stat-value { font-size: 18px; font-weight: bold; }
         .progress-bar {
-            height: 6px;
-            background: #444;
-            border-radius: 3px;
-            margin-top: 5px;
-            overflow: hidden;
+            height: 6px; background: #444; border-radius: 3px; margin-top: 5px; overflow: hidden;
         }
-        .progress-fill {
-            height: 100%;
-            border-radius: 3px;
-        }
+        .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease-in-out; }
         .btn-action {
             background-color: var(--tg-theme-button-color, #007aff);
             color: var(--tg-theme-button-text-color, #ffffff);
-            border: none;
-            width: 100%;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
+            border: none; width: 100%; padding: 15px; border-radius: 12px;
+            font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px;
         }
     </style>
 </head>
@@ -82,44 +48,62 @@
             <p style="opacity: 0.6;">Уровень 5 | Биохакер</p>
         </div>
 
-        <div class="card" style="display: block;">
+        <div class="card">
             <div style="display: flex; justify-content: space-between;">
                 <span>⚖️ Вес</span>
-                <span class="stat-value">110.2 кг</span>
-            </div>
+                <span class="stat-value" id="weight-val">Загрузка...</span> </div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: 85%; background: #ff3b30;"></div>
+                <div class="progress-fill" id="weight-bar" style="width: 0%; background: #ff3b30;"></div>
             </div>
             <div style="font-size: 12px; margin-top: 5px; opacity: 0.6;">Цель: 95 кг</div>
         </div>
 
-        <div class="card" style="display: block;">
+        <div class="card">
             <div style="display: flex; justify-content: space-between;">
                 <span>💸 Долг</span>
-                <span class="stat-value">-4.7М ₽</span>
-            </div>
+                <span class="stat-value" id="debt-val">Загрузка...</span> </div>
             <div class="progress-bar">
                 <div class="progress-fill" style="width: 40%; background: #34c759;"></div>
             </div>
-            <div style="font-size: 12px; margin-top: 5px; opacity: 0.6;">Стратегия: Гасим Т-Банк</div>
         </div>
 
         <div class="card">
-            <div>
-                <div class="stat-label">Висцеральный жир</div>
-                <div class="stat-value">14 ед.</div>
-            </div>
-            <div style="text-align: right; color: #ffcc00;">
-                ⚠️ Высокий
-            </div>
+            <div class="stat-label">Висцеральный жир</div>
+            <div class="stat-value" id="visc-val">Загрузка...</div> <div style="text-align: right; color: #ffcc00; font-size: 12px;" id="visc-alert">⚠️ Высокий</div>
         </div>
 
-        <button class="btn-action" onclick="Telegram.WebApp.close()">Закрыть Дашборд</button>
+        <button class="btn-action" onclick="Telegram.WebApp.close()">Закрыть</button>
     </div>
 
     <script>
+        // 1. Получаем параметры из ссылки (которую сгенерировал Бот)
+        const params = new URLSearchParams(window.location.search);
+        
+        // 2. Вытаскиваем значения (или ставим дефолтные, если пусто)
+        const weight = params.get('w') || '110.2';
+        const debt = params.get('d') || '4.7';
+        const visc = params.get('v') || '14';
+
+        // 3. Обновляем HTML на экране
+        document.getElementById('weight-val').innerText = weight + ' кг';
+        document.getElementById('debt-val').innerText = '-' + debt + 'М ₽';
+        document.getElementById('visc-val').innerText = visc + ' ед.';
+
+        // 4. Двигаем полоску веса (Математика: (Текущий - 95) / (113 - 95))
+        // Просто для красоты сделаем так: чем ближе к 95, тем меньше красного
+        // Допустим, 113кг = 100% полоски, 95кг = 0% полоски
+        let currentW = parseFloat(weight);
+        let maxW = 113;
+        let minW = 95;
+        let percent = ((currentW - minW) / (maxW - minW)) * 100;
+        if (percent < 0) percent = 0;
+        if (percent > 100) percent = 100;
+        
+        document.getElementById('weight-bar').style.width = percent + '%';
+
+        // 5. Сообщаем телеге, что мы готовы
         Telegram.WebApp.ready();
-        Telegram.WebApp.expand(); // Растянуть на весь экран
+        Telegram.WebApp.expand();
     </script>
 </body>
 </html>
