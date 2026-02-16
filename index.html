@@ -23,37 +23,19 @@
             display: flex; align-items: center; justify-content: center; font-size: 30px;
             border: 3px solid #2c2c2e; position: relative;
         }
-        .streak-badge {
-            position: absolute; right: -5px; bottom: 0; background: #ff3b30; color: white; 
-            padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; 
-            border: 2px solid #1c1c1e; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
-        }
-        .level-badge {
-            background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 10px;
-            font-size: 12px; font-weight: bold; position: relative; top: -10px;
-        }
+        .streak-badge { position: absolute; right: -5px; bottom: 0; background: #ff3b30; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; border: 2px solid #1c1c1e; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .level-badge { background: #ffcc00; color: #000; padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: bold; position: relative; top: -10px; }
         .xp-bar-container { background: #333; height: 8px; border-radius: 4px; width: 60%; margin: 5px auto; overflow: hidden; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s ease-out; }
         .xp-text { font-size: 11px; opacity: 0.6; margin-bottom: 15px; }
 
-        .card {
-            background-color: var(--tg-theme-secondary-bg-color, #2c2c2e);
-            border-radius: 14px; padding: 15px; margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        .card { background-color: var(--tg-theme-secondary-bg-color, #2c2c2e); border-radius: 14px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
         .stat-value { font-size: 20px; font-weight: bold; }
-        .sub-stat { font-size: 14px; opacity: 0.5; }
-        .edit-btn {
-            background: rgba(255,255,255,0.1); border: none; cursor: pointer; 
-            font-size: 16px; width: 30px; height: 30px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .edit-btn { background: rgba(255,255,255,0.1); border: none; cursor: pointer; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
         
-        /* ДИНАМИЧЕСКИЕ ПРИВЫЧКИ */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .habit-row:last-child { border-bottom: none; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .4s; border-radius: 34px; }
@@ -61,22 +43,24 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        .settings-btn {
-            background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px dashed #555;
-            width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 12px;
-        }
+        .settings-btn { background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px dashed #555; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 12px; }
+        .mini-settings { position: absolute; top: 15px; right: 15px; font-size: 14px; opacity: 0.5; cursor: pointer; }
 
-        /* ОСТАЛЬНОЕ */
-        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .mini-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; text-align: center; }
         .save-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background-color: var(--tg-theme-button-color, #007aff); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
         .note-input { width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 10px; }
         input[type=range] { width: 100%; margin: 15px 0; }
         .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
         .sleep-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #333; color: white; font-size: 20px; cursor: pointer; }
         .sleep-val { font-size: 24px; font-weight: bold; color: #0a84ff; }
+
+        /* --- ФИНАНСОВЫЕ СТИЛИ (ОБНОВЛЕННЫЕ) --- */
         .debt-bar-bg { background: #333; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; overflow: hidden; position: relative; }
-        .debt-bar-fill { height: 100%; background: linear-gradient(90deg, #ff3b30, #ff9500); width: 0%; transition: width 1s ease-out; }
+        .debt-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
+        
+        /* Цвета режимов */
+        .mode-debt { background: linear-gradient(90deg, #ff3b30, #ff9500); } /* Красный */
+        .mode-savings { background: linear-gradient(90deg, #34c759, #30b0c7); } /* Зеленый */
+
         .money-input { width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
@@ -90,15 +74,21 @@
         </div>
 
         <div class="card">
+            <div class="mini-settings" onclick="configureFinance()">⚙️</div>
+            
             <div class="stat-row">
-                <span>💸 Долг</span>
+                <span id="fin-label">💸 Долг</span>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <span class="stat-value" id="debt-val" style="color: #ff3b30;">--</span>
+                    <span class="stat-value" id="debt-val">--</span>
                     <button class="edit-btn" onclick="editParam('debt')">✏️</button>
                 </div>
             </div>
-            <div class="debt-bar-bg"><div class="debt-bar-fill" id="debt-fill"></div></div>
-            <div style="font-size: 11px; opacity: 0.5; text-align: right;">Цель: 0 руб</div>
+            
+            <div class="debt-bar-bg">
+                <div class="debt-bar-fill" id="debt-fill"></div>
+            </div>
+            <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="fin-goal-text">Цель: --</div>
+
             <input type="number" class="money-input" id="money-earned" placeholder="💰 Заработал сегодня">
         </div>
 
@@ -109,10 +99,8 @@
 
         <div class="card">
             <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">Мой Протокол</div>
-            
             <div id="habits-container"></div>
-
-            <button class="settings-btn" onclick="configureHabits()">⚙️ Настроить привычки (Добавить/Удалить)</button>
+            <button class="settings-btn" onclick="configureHabits()">⚙️ Настроить привычки</button>
         </div>
 
         <div class="card">
@@ -137,15 +125,41 @@
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
-        
         document.getElementById('weight-val').innerText = params.get('w') || '110.5';
-        
-        const debtStr = params.get('d') || '4.7';
-        document.getElementById('debt-val').innerText = debtStr + ' М';
-        const debtPercent = Math.min(100, (parseFloat(debtStr) / 5.0) * 100);
-        document.getElementById('debt-fill').style.width = debtPercent + '%';
 
-        // ГРАФИК
+        // --- ЛОГИКА ФИНАНСОВ ---
+        const fMode = params.get('fmode') || 'debt'; // 'debt' или 'savings'
+        const fTarget = parseFloat(params.get('ftarget') || '5.0');
+        const currentMoney = parseFloat(params.get('d') || '0'); // Используем параметр d для текущей суммы
+
+        const barEl = document.getElementById('debt-fill');
+        const valEl = document.getElementById('debt-val');
+        const labelEl = document.getElementById('fin-label');
+        const goalEl = document.getElementById('fin-goal-text');
+
+        valEl.innerText = currentMoney + ' М';
+        goalEl.innerText = (fMode === 'debt' ? 'Старт: ' : 'Цель: ') + fTarget + ' М';
+
+        let percent = 0;
+        if (fTarget > 0) {
+            percent = (currentMoney / fTarget) * 100;
+            if(percent > 100) percent = 100;
+        }
+
+        if (fMode === 'savings') {
+            labelEl.innerText = "💰 Накопления";
+            valEl.style.color = "#34c759"; // Зеленый текст
+            barEl.classList.add('mode-savings');
+            barEl.style.width = percent + '%';
+        } else {
+            labelEl.innerText = "💸 Долг";
+            valEl.style.color = "#ff3b30"; // Красный текст
+            barEl.classList.add('mode-debt');
+            // Для долга: если 4.7 из 5.0, то полоска почти полная (94%)
+            barEl.style.width = percent + '%';
+        }
+
+        // --- ГРАФИК ---
         const hStr = params.get('h') || '110'; 
         const hData = hStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
@@ -153,46 +167,19 @@
         gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
         new Chart(ctx, { type: 'line', data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true } } } });
 
-        // --- 🛠 ДИНАМИЧЕСКИЕ ПРИВЫЧКИ ---
-        // Получаем список привычек из URL (они приходят через запятую)
-        // Пример: &habits=Без сахара,Вода,Зал
-        // А статусы приходят как &s_Без_сахара=1
-        
+        // --- ДИНАМИЧЕСКИЕ ПРИВЫЧКИ ---
         const rawHabits = params.get('list') || "Без сахара,Вода 2л,Шаги 10к,Омега-3,Магний B6,Тренировка";
         const habitList = rawHabits.split(',');
+        const statsStr = params.get('stats') || "0".repeat(habitList.length);
         const container = document.getElementById('habits-container');
 
-        habitList.forEach(habit => {
-            const cleanName = habit.trim();
-            if(!cleanName) return;
-
-            // Проверяем статус (1 или 0)
-            // URL кодировка может заменять пробелы, поэтому ищем аккуратно
-            const statusKey = 's_' + encodeURIComponent(cleanName);
-            // Но в URL params.get декодирует сам.
-            // Проблема: в URL бот передает s_0, s_1 и т.д. по порядку?
-            // НЕТ, лучше передать статус по порядку или по имени.
-            // Давай так: Бот передает список имен в 'list'.
-            // И передает строку состояний в 'stats' (например "101001")
-        });
-
-        const statsStr = params.get('stats') || "0".repeat(habitList.length);
-        
         habitList.forEach((habit, index) => {
             const cleanName = habit.trim();
             if(!cleanName) return;
-            
             const isChecked = statsStr[index] === '1';
-            
             const row = document.createElement('div');
             row.className = 'habit-row';
-            row.innerHTML = `
-                <span>${cleanName}</span>
-                <label class="switch">
-                    <input type="checkbox" class="habit-checkbox" data-name="${cleanName}" ${isChecked ? 'checked' : ''}>
-                    <span class="slider"></span>
-                </label>
-            `;
+            row.innerHTML = `<span>${cleanName}</span><label class="switch"><input type="checkbox" class="habit-checkbox" data-name="${cleanName}" ${isChecked ? 'checked' : ''}><span class="slider"></span></label>`;
             container.appendChild(row);
         });
 
@@ -203,39 +190,38 @@
         let currentSleep = 7.0;
         function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; }
 
-        // НАСТРОЙКА ПРИВЫЧЕК
         function configureHabits() {
-            const currentList = habitList.join(', ');
-            const newList = prompt("Введи список привычек через запятую:", currentList);
-            if (newList && newList !== currentList) {
-                // Отправляем боту новый конфиг
+            const newList = prompt("Введи список привычек через запятую:", habitList.join(', '));
+            if (newList) tg.sendData(JSON.stringify({type: 'update_config', list: newList}));
+        }
+
+        // НАСТРОЙКА ФИНАНСОВ
+        function configureFinance() {
+            const mode = prompt("Выбери режим:\n1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
+            let modeStr = (mode === '2') ? 'savings' : 'debt';
+            
+            const target = prompt("Введи Цель (в Миллионах). \nЕсли Долг - введи начальную сумму долга.\nЕсли Накопления - введи желаемую сумму.", "5.0");
+            
+            if(mode && target) {
                 tg.sendData(JSON.stringify({
-                    type: 'update_config',
-                    list: newList
+                    type: 'update_fin_config',
+                    mode: modeStr,
+                    target: target.replace(',', '.')
                 }));
             }
         }
 
-        // СОХРАНЕНИЕ
         function saveAll() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            
-            // Собираем динамические привычки
             const habitsData = {};
-            document.querySelectorAll('.habit-checkbox').forEach(cb => {
-                habitsData[cb.getAttribute('data-name')] = cb.checked;
-            });
-
+            document.querySelectorAll('.habit-checkbox').forEach(cb => habitsData[cb.getAttribute('data-name')] = cb.checked);
             setTimeout(() => {
-                const data = {
-                    type: 'batch_habits',
-                    habits: habitsData, // Теперь это объект { "Сахар": true, "Зал": false }
+                tg.sendData(JSON.stringify({
+                    type: 'batch_habits', habits: habitsData,
                     energy: document.getElementById('energy-slider').value,
-                    sleep: currentSleep,
-                    note: document.getElementById('daily-note').value,
+                    sleep: currentSleep, note: document.getElementById('daily-note').value,
                     earned: document.getElementById('money-earned').value
-                };
-                tg.sendData(JSON.stringify(data));
+                }));
             }, 1000);
         }
     </script>
