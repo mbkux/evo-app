@@ -74,18 +74,14 @@
         /* DASHBOARD GRID */
         .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .dash-card { background: #1c1c1e; padding: 15px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .dash-val { font-size: 20px; font-weight: bold; margin-top: 5px; }
+        .dash-val { font-size: 18px; font-weight: bold; margin-top: 5px; white-space: nowrap; }
         .dash-lbl { font-size: 12px; opacity: 0.5; }
 
-        /* SLIDERS & CONTROLS */
-        input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; cursor: pointer; }
+        /* CONTROLS */
+        input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; }
         .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; background: #2c2c2e; padding: 5px; border-radius: 12px; }
         .sleep-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: #3a3a3c; color: white; font-size: 20px; font-weight: bold; }
         .note-input { width: 100%; background: #2c2c2e; color: #fff; border: none; border-radius: 12px; padding: 12px; margin-top: 15px; font-size: 14px; min-height: 50px; resize: none; }
-        
-        /* Особые слайдеры для денег */
-        .slider-debt { accent-color: #ff453a; }
-        .slider-savings { accent-color: #30d158; }
 
         /* HABITS */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -99,12 +95,25 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* FINANCE BARS */
+        /* FINANCE (NEW) */
         .fin-bar-bg { background: #2c2c2e; height: 16px; border-radius: 8px; margin: 15px 0 5px; overflow: hidden; position: relative; }
-        .fin-bar-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; } /* Быстрее анимация */
+        .fin-bar-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; } 
         .mode-debt { background: linear-gradient(90deg, #ff453a, #ff9f0a); }
         .mode-savings { background: linear-gradient(90deg, #30d158, #63e6e2); }
-        .money-input { width: 100%; background: #2c2c2e; color: #30d158; border: none; border-radius: 12px; padding: 15px; font-size: 20px; font-weight: bold; margin-top: 15px; text-align: center; }
+        
+        /* Блок ввода транзакции */
+        .fin-action-row { display: flex; gap: 10px; margin-top: 15px; }
+        .fin-input { 
+            flex: 1; background: #2c2c2e; border: 1px solid #444; color: #fff;
+            border-radius: 12px; padding: 12px; font-size: 16px; font-weight: bold;
+        }
+        .fin-btn {
+            border: none; border-radius: 12px; font-weight: bold; padding: 0 20px; cursor: pointer; color: #000;
+        }
+        .btn-pay { background: #ff453a; color: white; }
+        .btn-add { background: #30d158; color: white; }
+        
+        .money-input-main { width: 100%; background: #2c2c2e; color: #30d158; border: none; border-radius: 12px; padding: 15px; font-size: 20px; font-weight: bold; margin-top: 15px; text-align: center; }
 
         /* HEATMAP */
         .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
@@ -186,14 +195,17 @@
                 </div>
                 <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="fin-sav-val">--</span>
-                    <button class="edit-btn" onclick="editMoney('savings')">✏️</button>
+                    <button class="edit-btn" onclick="editMoneyTotal('savings')">✏️</button>
                 </div>
             </div>
             
             <div class="fin-bar-bg"><div class="fin-bar-fill mode-savings" id="bar-sav"></div></div>
             <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="goal-sav">Цель: --</div>
             
-            <input type="range" class="slider-savings" id="slider-sav" min="0" max="10" step="0.01" oninput="slideMoney('savings', this.value)">
+            <div class="fin-action-row">
+                <input type="number" class="fin-input" id="input-sav" placeholder="Сумма">
+                <button class="fin-btn btn-add" onclick="transactMoney('savings')">Пополнить</button>
+            </div>
         </div>
 
         <div class="card">
@@ -204,19 +216,22 @@
                 </div>
                 <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="fin-debt-val">--</span>
-                    <button class="edit-btn" onclick="editMoney('debt')">✏️</button>
+                    <button class="edit-btn" onclick="editMoneyTotal('debt')">✏️</button>
                 </div>
             </div>
             
             <div class="fin-bar-bg"><div class="fin-bar-fill mode-debt" id="bar-debt"></div></div>
             <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="goal-debt">Старт: --</div>
             
-            <input type="range" class="slider-debt" id="slider-debt" min="0" max="10" step="0.01" oninput="slideMoney('debt', this.value)">
+            <div class="fin-action-row">
+                <input type="number" class="fin-input" id="input-debt" placeholder="Сумма">
+                <button class="fin-btn btn-pay" onclick="transactMoney('debt')">Погасить</button>
+            </div>
         </div>
 
         <div class="card">
-            <span class="stat-label" style="opacity: 0.5;">Внести доход</span>
-            <input type="number" class="money-input" id="money-earned" placeholder="0 ₽">
+            <span class="stat-label" style="opacity: 0.5;">Внести доход (Статистика)</span>
+            <input type="number" class="money-input-main" id="money-earned" placeholder="0 ₽">
         </div>
     </div>
 
@@ -243,76 +258,92 @@
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
 
-        // --- ФИНАНСЫ (НОВАЯ ЛОГИКА) ---
+        // --- ФИНАНСЫ (REAL MONEY) ---
         let valDebt = parseFloat(params.get('d') || '4.7');
         let valSav = parseFloat(params.get('s') || '0.0');
         let tarDebt = parseFloat(params.get('td') || '5.0');
         let tarSav = parseFloat(params.get('ts') || '1.0');
 
+        // МИГРАЦИЯ СТАРЫХ ДАННЫХ (Если < 100, значит это миллионы)
+        if (valDebt < 100) valDebt = valDebt * 1000000;
+        if (valSav < 100) valSav = valSav * 1000000;
+        if (tarDebt < 100) tarDebt = tarDebt * 1000000;
+        if (tarSav < 100) tarSav = tarSav * 1000000;
+
+        // ФОРМАТЕР ДЕНЕГ
+        function formatMoney(amount) {
+            if (amount >= 1000000) return (amount / 1000000).toFixed(3).replace('.', ',') + ' млн ₽';
+            if (amount >= 1000) return (amount / 1000).toFixed(0) + ' тыс ₽';
+            return amount + ' ₽';
+        }
+
         function updateFinanceAll() {
             // Тексты
-            document.getElementById('fin-debt-val').innerText = valDebt.toFixed(2) + ' М';
-            document.getElementById('fin-sav-val').innerText = valSav.toFixed(2) + ' М';
-            document.getElementById('dash-debt-val').innerText = valDebt.toFixed(2) + ' М';
-            document.getElementById('dash-sav-val').innerText = valSav.toFixed(2) + ' М';
+            const strDebt = formatMoney(valDebt);
+            const strSav = formatMoney(valSav);
+
+            document.getElementById('fin-debt-val').innerText = strDebt;
+            document.getElementById('fin-sav-val').innerText = strSav;
+            document.getElementById('dash-debt-val').innerText = strDebt;
+            document.getElementById('dash-sav-val').innerText = strSav;
 
             // Цели
-            document.getElementById('goal-debt').innerText = "Старт: " + tarDebt + " М";
-            document.getElementById('goal-sav').innerText = "Цель: " + tarSav + " М";
+            document.getElementById('goal-debt').innerText = "Старт: " + formatMoney(tarDebt);
+            document.getElementById('goal-sav').innerText = "Цель: " + formatMoney(tarSav);
 
             // Полоски
             let pDebt = 0; if(tarDebt > 0) pDebt = (valDebt / tarDebt) * 100;
             let pSav = 0; if(tarSav > 0) pSav = (valSav / tarSav) * 100;
-            if(pSav > 100) pSav = 100; if(pDebt > 100) pDebt = 100; // Ограничиваем визуал
+            if(pSav > 100) pSav = 100; if(pDebt > 100) pDebt = 100;
             
             document.getElementById('bar-debt').style.width = pDebt + '%';
             document.getElementById('bar-sav').style.width = pSav + '%';
-
-            // Слайдеры (устанавливаем max чуть больше цели, чтобы был запас)
-            const sliderDebt = document.getElementById('slider-debt');
-            const sliderSav = document.getElementById('slider-sav');
-            
-            // Настройка пределов слайдера (динамически)
-            sliderDebt.max = Math.max(tarDebt, valDebt) + 0.5;
-            sliderSav.max = Math.max(tarSav, valSav) + 0.5;
-            
-            // Устанавливаем текущее значение, если мы НЕ трогаем слайдер прямо сейчас
-            if(document.activeElement !== sliderDebt) sliderDebt.value = valDebt;
-            if(document.activeElement !== sliderSav) sliderSav.value = valSav;
         }
         updateFinanceAll();
 
-        // Слайдер (Бегунок)
-        function slideMoney(type, val) {
-            val = parseFloat(val);
+        // ТРАНЗАКЦИЯ (КНОПКА ПОГАСИТЬ/ПОПОЛНИТЬ)
+        function transactMoney(type) {
+            let inputEl, amount;
             if (type === 'debt') {
-                valDebt = val;
-                pendingUpdates['debt'] = val;
+                inputEl = document.getElementById('input-debt');
+                amount = parseFloat(inputEl.value);
+                if (!isNaN(amount) && amount > 0) {
+                    valDebt -= amount; // Долг уменьшаем
+                    if (valDebt < 0) valDebt = 0;
+                    pendingUpdates['debt'] = valDebt;
+                    inputEl.value = ''; // Очистить поле
+                }
             } else {
-                valSav = val;
-                pendingUpdates['savings'] = val;
+                inputEl = document.getElementById('input-sav');
+                amount = parseFloat(inputEl.value);
+                if (!isNaN(amount) && amount > 0) {
+                    valSav += amount; // Накопления увеличиваем
+                    pendingUpdates['savings'] = valSav;
+                    inputEl.value = ''; // Очистить поле
+                }
             }
             updateFinanceAll();
+            tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // Карандаш (Ручной ввод)
-        function editMoney(type) {
+        // РЕДАКТИРОВАНИЕ (КАРАНДАШ - ПРАВКА ИТОГА)
+        function editMoneyTotal(type) {
             let oldVal = (type === 'debt') ? valDebt : valSav;
-            let newVal = prompt("Сумма (М):", oldVal);
+            let newVal = prompt("Точная сумма (руб):", oldVal);
             if (newVal) {
-                newVal = parseFloat(newVal.replace(',', '.'));
+                newVal = parseFloat(newVal.replace(',', '.').replace(/\s/g, ''));
                 if (type === 'debt') { valDebt = newVal; pendingUpdates['debt'] = newVal; }
                 else { valSav = newVal; pendingUpdates['savings'] = newVal; }
                 updateFinanceAll();
             }
         }
 
-        // Настройка цели
+        // НАСТРОЙКА ЦЕЛИ (ШЕСТЕРЕНКА)
         function setTarget(type) {
             let oldTar = (type === 'debt') ? tarDebt : tarSav;
-            let newTar = prompt((type === 'debt' ? "Начальный долг (М):" : "Цель накоплений (М):"), oldTar);
+            let newTar = prompt((type === 'debt' ? "Начальный долг (руб):" : "Цель (руб):"), oldTar);
             if (newTar) {
-                newTar = parseFloat(newTar.replace(',', '.'));
+                newTar = parseFloat(newTar.replace(',', '.').replace(/\s/g, ''));
                 if (type === 'debt') { tarDebt = newTar; pendingUpdates['target_debt'] = newTar; }
                 else { tarSav = newTar; pendingUpdates['target_savings'] = newTar; }
                 updateFinanceAll();
@@ -324,7 +355,9 @@
         const hData = hStr.split(',').map(parseFloat); const hDates = hDateStr.split(',');
         const ctx = document.getElementById('weightChart').getContext('2d');
         const gr = ctx.createLinearGradient(0,0,0,200); gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
-        new Chart(ctx, { type: 'line', data: { labels: hDates, datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#1c1c1e', pointBorderColor: '#a855f7', fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: '#333', titleColor: '#fff', bodyColor: '#fff', displayColors: false, callbacks: { label: function(context) { return context.raw + ' кг'; } } } }, scales: { x: { display: true, grid: { display: false }, ticks: { color: '#666' } }, y: { display: true, position: 'right', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
+        new Chart(ctx, { 
+            type: 'line', data: { labels: hDates, datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#1c1c1e', pointBorderColor: '#a855f7', fill: true, tension: 0.3 }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: '#333', titleColor: '#fff', bodyColor: '#fff', displayColors: false, callbacks: { label: function(context) { return context.raw + ' кг'; } } } }, scales: { x: { display: true, grid: { display: false }, ticks: { color: '#666' } }, y: { display: true, position: 'right', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
 
         // --- ПРИВЫЧКИ ---
         const rawHabits = params.get('list') || "";
