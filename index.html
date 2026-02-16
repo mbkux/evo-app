@@ -42,7 +42,9 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
-        .stat-value { font-size: 22px; font-weight: bold; }
+        .stat-value { font-size: 20px; font-weight: bold; }
+        .sub-stat { font-size: 14px; opacity: 0.5; }
+        
         .edit-btn {
             background: rgba(255,255,255,0.1); border: none; cursor: pointer; 
             font-size: 16px; width: 30px; height: 30px; border-radius: 50%;
@@ -59,19 +61,11 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* Input Range (Energy) */
-        input[type=range] {
-            width: 100%; margin: 15px 0; -webkit-appearance: none; background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%;
-            background: #ffffff; cursor: pointer; margin-top: -10px; box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px;
-        }
+        /* Input Range */
+        input[type=range] { width: 100%; margin: 15px 0; -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #ffffff; cursor: pointer; margin-top: -10px; box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
         
-        /* Textarea */
         .note-input {
             width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444;
             border-radius: 8px; padding: 10px; font-family: inherit; resize: none;
@@ -86,6 +80,10 @@
             font-size: 18px; font-weight: bold; cursor: pointer;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100;
         }
+        
+        /* ДЛЯ ВТОРОЙ КОЛОНКИ */
+        .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .mini-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; text-align: center; }
     </style>
 </head>
 <body>
@@ -114,13 +112,34 @@
 
         <div class="card">
             <div class="stat-row">
+                <span>🧬 Состав Тела</span>
+                <span class="sub-stat" id="fat-mass-display">Жир: -- кг</span>
+            </div>
+            <div class="grid-row">
+                <div class="mini-card">
+                    <div class="sub-stat">Жир %</div>
+                    <div style="display: flex; justify-content: center; gap: 5px; align-items: center;">
+                        <span class="stat-value" id="fat-val">--</span>
+                        <button class="edit-btn" style="width: 24px; height: 24px; font-size: 12px;" onclick="editParam('fat')">✏️</button>
+                    </div>
+                </div>
+                <div class="mini-card">
+                    <div class="sub-stat">Висцерал.</div>
+                    <div style="display: flex; justify-content: center; gap: 5px; align-items: center;">
+                        <span class="stat-value" id="visc-val">--</span>
+                        <button class="edit-btn" style="width: 24px; height: 24px; font-size: 12px;" onclick="editParam('visc')">✏️</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="stat-row">
                 <span style="opacity: 0.7;">⚡ Уровень Энергии</span>
                 <span class="stat-value" id="energy-display">50% 😐</span>
             </div>
             <input type="range" id="energy-slider" min="0" max="100" value="50" step="5" oninput="updateEnergy(this.value)">
-            
-            <div style="margin-top: 15px; opacity: 0.7; font-size: 14px;">📝 Мысли дня:</div>
-            <textarea class="note-input" id="daily-note" rows="2" placeholder="Как самочувствие?"></textarea>
+            <textarea class="note-input" id="daily-note" rows="1" placeholder="Заметки (зал, еда)..."></textarea>
         </div>
 
         <div class="card">
@@ -129,16 +148,11 @@
             <div class="habit-row"><span>💧 Вода (2л)</span><label class="switch"><input type="checkbox" id="h_water"><span class="slider"></span></label></div>
             <div class="habit-row"><span>🚶‍♂️ Шаги (10к)</span><label class="switch"><input type="checkbox" id="h_steps"><span class="slider"></span></label></div>
             <div class="habit-row"><span>💊 Омега-3</span><label class="switch"><input type="checkbox" id="h_pills"><span class="slider"></span></label></div>
+            <div class="habit-row"><span style="color: #ffcc00; font-weight: bold;">🏋️‍♂️ Тренировка</span><label class="switch"><input type="checkbox" id="h_gym"><span class="slider"></span></label></div>
         </div>
-
+        
         <div class="card">
-            <div class="stat-row">
-                <span>💸 Долг</span>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <span class="stat-value" id="debt-val">--</span>
-                    <button class="edit-btn" onclick="editParam('debt')">✏️</button>
-                </div>
-            </div>
+            <div class="stat-row"><span>💸 Долг</span><div style="display: flex; gap: 10px; align-items: center;"><span class="stat-value" id="debt-val">--</span><button class="edit-btn" onclick="editParam('debt')">✏️</button></div></div>
         </div>
     </div>
 
@@ -153,14 +167,27 @@
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
-        document.getElementById('weight-val').innerText = params.get('w') || '110.2';
+        
+        const w = params.get('w') || '110.5';
+        document.getElementById('weight-val').innerText = w;
         document.getElementById('debt-val').innerText = params.get('d') || '4.7';
+
+        // --- НОВЫЕ ПАРАМЕТРЫ ---
+        const fat = params.get('fat') || '32.1';
+        const visc = params.get('visc') || '14';
+        document.getElementById('fat-val').innerText = fat + '%';
+        document.getElementById('visc-val').innerText = visc;
+        
+        // Считаем кг жира
+        const fatMass = (parseFloat(w) * parseFloat(fat) / 100).toFixed(1);
+        document.getElementById('fat-mass-display').innerText = "Жир: " + fatMass + " кг";
 
         // Восстановление галочек
         document.getElementById('h_sugar').checked = params.get('hs') === '1';
         document.getElementById('h_water').checked = params.get('hw') === '1';
         document.getElementById('h_steps').checked = params.get('hst') === '1';
         document.getElementById('h_pills').checked = params.get('hp') === '1';
+        document.getElementById('h_gym').checked = params.get('hgym') === '1'; // ТРЕНИРОВКА
 
         // --- ГРАФИК ---
         const hStr = params.get('h') || '110'; 
@@ -177,22 +204,14 @@
 
         function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
 
-        // --- ЛОГИКА ЭНЕРГИИ ---
         function updateEnergy(val) {
             let emoji = "😐";
-            if(val < 20) emoji = "🧟‍♂️";
-            else if(val < 40) emoji = "🥱";
-            else if(val < 60) emoji = "😐";
-            else if(val < 80) emoji = "🙂";
-            else emoji = "🚀";
-            
+            if(val < 20) emoji = "🧟‍♂️"; else if(val < 40) emoji = "🥱"; else if(val < 60) emoji = "😐"; else if(val < 80) emoji = "🙂"; else emoji = "🚀";
             document.getElementById('energy-display').innerText = val + "% " + emoji;
         }
 
-        // --- СОХРАНЕНИЕ ВСЕГО ---
         function saveAll() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-
             setTimeout(() => {
                 const data = {
                     type: 'batch_habits',
@@ -200,7 +219,7 @@
                     water: document.getElementById('h_water').checked,
                     steps: document.getElementById('h_steps').checked,
                     pills: document.getElementById('h_pills').checked,
-                    // Добавляем новые поля
+                    gym: document.getElementById('h_gym').checked, // НОВОЕ
                     energy: document.getElementById('energy-slider').value,
                     note: document.getElementById('daily-note').value
                 };
