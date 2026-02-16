@@ -35,7 +35,7 @@
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* FAB (Save) */
+        /* FAB */
         .fab-save {
             position: fixed; bottom: 85px; right: 20px;
             width: 56px; height: 56px; border-radius: 28px;
@@ -69,7 +69,7 @@
         .edit-btn { background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; margin-left: 10px; cursor: pointer; }
         .config-btn { background: none; border: none; font-size: 18px; opacity: 0.5; margin-right: 10px; cursor: pointer; }
 
-        .chart-container { position: relative; height: 160px; width: 100%; margin-top: 15px; }
+        .chart-container { position: relative; height: 200px; width: 100%; margin-top: 15px; } /* Чуть увеличил высоту */
 
         /* CONTROLS */
         input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; }
@@ -182,59 +182,98 @@
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
-
-        // --- 🔥 ГЛОБАЛЬНАЯ КОРЗИНА ИЗМЕНЕНИЙ ---
         let pendingUpdates = {};
 
-        // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
-        // Вес
+        // --- ДАННЫЕ ---
         let currentWeight = params.get('w') || '110.5';
         document.getElementById('weight-val').innerText = currentWeight;
+        document.getElementById('lvl-badge').innerText = 'LEVEL ' + (params.get('lvl') || '1');
+        document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
+        document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
 
-        // Финансы
+        // --- ГРАФИК (PRO VERSION) ---
+        const hStr = params.get('h') || '110'; 
+        const hDateStr = params.get('hd') || '01.01'; // Получаем даты
+
+        const hData = hStr.split(',').map(parseFloat);
+        const hDates = hDateStr.split(','); // Массив дат для оси X
+
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        const gr = ctx.createLinearGradient(0,0,0,200);
+        gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); 
+        gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
+        
+        new Chart(ctx, { 
+            type: 'line', 
+            data: { 
+                labels: hDates, // ДАТЫ НА ОСИ X
+                datasets: [{ 
+                    data: hData, 
+                    borderColor: '#a855f7', 
+                    backgroundColor: gr, 
+                    borderWidth: 3, 
+                    pointRadius: 4, // ТОЧКИ
+                    pointBackgroundColor: '#1c1c1e',
+                    pointBorderColor: '#a855f7',
+                    pointBorderWidth: 2,
+                    fill: true, 
+                    tension: 0.3 
+                }] 
+            }, 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#333',
+                        titleColor: '#fff',
+                        bodyColor: '#fff',
+                        padding: 10,
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return context.raw + ' кг';
+                            }
+                        }
+                    }
+                }, 
+                scales: { 
+                    x: { 
+                        display: true, // ПОКАЗЫВАЕМ ОСЬ X
+                        grid: { display: false, color: 'rgba(255,255,255,0.1)' },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    }, 
+                    y: { 
+                        display: true, // ПОКАЗЫВАЕМ ОСЬ Y
+                        position: 'right',
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#666', font: { size: 10 } }
+                    } 
+                } 
+            } 
+        });
+
+        // --- ОСТАЛЬНАЯ ЛОГИКА (БЕЗ ИЗМЕНЕНИЙ) ---
         let fMode = params.get('fmode') || 'debt'; 
         let fTarget = parseFloat(params.get('ftarget') || '5.0');
         let currentMoney = parseFloat(params.get('d') || '0'); 
-        
         function updateFinUI() {
             const barEl = document.getElementById('debt-fill');
             const valEl = document.getElementById('debt-val');
             const labelEl = document.getElementById('fin-label');
             const goalEl = document.getElementById('fin-goal-text');
-
             valEl.innerText = currentMoney + ' М';
             goalEl.innerText = (fMode === 'debt' ? 'Старт: ' : 'Цель: ') + fTarget + ' М';
-            
-            let percent = 0;
-            if (fTarget > 0) { percent = (currentMoney / fTarget) * 100; if(percent > 100) percent = 100; }
-
-            // Сброс классов
+            let percent = 0; if (fTarget > 0) { percent = (currentMoney / fTarget) * 100; if(percent > 100) percent = 100; }
             barEl.className = 'debt-bar-fill';
-            if (fMode === 'savings') {
-                labelEl.innerText = "Накопления"; valEl.style.color = "#30d158"; 
-                barEl.classList.add('mode-savings'); 
-            } else {
-                labelEl.innerText = "Долг"; valEl.style.color = "#ff453a"; 
-                barEl.classList.add('mode-debt');
-            }
+            if (fMode === 'savings') { labelEl.innerText = "Накопления"; valEl.style.color = "#30d158"; barEl.classList.add('mode-savings'); } 
+            else { labelEl.innerText = "Долг"; valEl.style.color = "#ff453a"; barEl.classList.add('mode-debt'); }
             barEl.style.width = percent + '%';
         }
         updateFinUI();
 
-        // Прочие данные
-        document.getElementById('lvl-badge').innerText = 'LEVEL ' + (params.get('lvl') || '1');
-        document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
-        document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
-        
-        // График
-        const hStr = params.get('h') || '110'; 
-        const hData = hStr.split(',').map(parseFloat);
-        const ctx = document.getElementById('weightChart').getContext('2d');
-        const gr = ctx.createLinearGradient(0,0,0,160);
-        gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
-        new Chart(ctx, { type: 'line', data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 0, hoverPointRadius: 4, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
-
-        // Привычки
         const rawHabits = params.get('list') || "";
         const statsStr = params.get('stats') || "";
         let userHabits = [];
@@ -243,11 +282,9 @@
             names.forEach((name, i) => { if(name.trim()) userHabits.push({ name: name.trim(), checked: statsStr[i] === '1' }); });
         }
         function renderHabits() {
-            const container = document.getElementById('habits-container');
-            container.innerHTML = ''; 
+            const container = document.getElementById('habits-container'); container.innerHTML = ''; 
             userHabits.forEach((habit, index) => {
-                const row = document.createElement('div');
-                row.className = 'habit-row';
+                const row = document.createElement('div'); row.className = 'habit-row';
                 row.innerHTML = `<div style="display:flex; align-items:center;"><button class="delete-habit" onclick="deleteHabit(${index})">✕</button><span class="habit-name">${habit.name}</span></div><label class="switch"><input type="checkbox" onchange="toggleHabit(${index})" ${habit.checked ? 'checked' : ''}><span class="slider"></span></label>`;
                 container.appendChild(row);
             });
@@ -257,14 +294,10 @@
         function toggleHabit(index) { userHabits[index].checked = !userHabits[index].checked; tg.HapticFeedback.impactOccurred('light'); }
         renderHabits();
 
-        // Heatmap
         const mapData = params.get('map') || "0000000000000000000000000000"; 
         const heatmap = document.getElementById('heatmap');
-        for (let char of mapData) {
-            const div = document.createElement('div'); div.className = 'day-sq lv-' + char; heatmap.appendChild(div);
-        }
+        for (let char of mapData) { const div = document.createElement('div'); div.className = 'day-sq lv-' + char; heatmap.appendChild(div); }
 
-        // Сон и Энергия
         const savedEnergy = params.get('en') || '50';
         const savedSleep = parseFloat(params.get('sl') || '7.0');
         document.getElementById('energy-slider').value = savedEnergy;
@@ -272,85 +305,19 @@
         document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч";
         updateEnergy(savedEnergy);
 
-        function updateEnergy(val) { 
-            let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; 
-            document.getElementById('energy-display').innerText=val+"% "+e; 
-        }
-        function changeSleep(delta) { 
-            currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; 
-            document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; 
-            tg.HapticFeedback.selectionChanged();
-        }
+        function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
+        function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; tg.HapticFeedback.selectionChanged(); }
+        function switchTab(tabId, el) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(tabId).classList.add('active'); el.classList.add('active'); tg.HapticFeedback.selectionChanged(); }
+        function editWeightLocally() { let v = prompt("Новый вес (кг):", currentWeight); if(v) { v = v.replace(',', '.'); currentWeight = v; document.getElementById('weight-val').innerText = v; pendingUpdates['weight'] = v; } }
+        function editDebtLocally() { let v = prompt("Текущая сумма (М):", currentMoney); if(v) { v = parseFloat(v.replace(',', '.')); currentMoney = v; updateFinUI(); pendingUpdates['debt'] = v; } }
+        function configureFinanceLocally() { const mode = prompt("1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1"); let modeStr = (mode === '2') ? 'savings' : 'debt'; const target = prompt("Цель (Млн):", fTarget); if(mode && target) { fMode = modeStr; fTarget = parseFloat(target.replace(',', '.')); updateFinUI(); pendingUpdates['fin_mode'] = fMode; pendingUpdates['fin_target'] = fTarget; } }
 
-        function switchTab(tabId, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            el.classList.add('active');
-            tg.HapticFeedback.selectionChanged();
-        }
-
-        // --- 🔥 НОВЫЕ ЛОКАЛЬНЫЕ ФУНКЦИИ (НЕ ЗАКРЫВАЮТ БОТА) ---
-
-        function editWeightLocally() {
-            let v = prompt("Новый вес (кг):", currentWeight);
-            if(v) {
-                v = v.replace(',', '.');
-                currentWeight = v;
-                document.getElementById('weight-val').innerText = v;
-                pendingUpdates['weight'] = v; // Сохраняем в корзину
-            }
-        }
-
-        function editDebtLocally() {
-            let v = prompt("Текущая сумма (М):", currentMoney);
-            if(v) {
-                v = parseFloat(v.replace(',', '.'));
-                currentMoney = v;
-                updateFinUI(); // Обновляем полоску
-                pendingUpdates['debt'] = v; // Сохраняем в корзину
-            }
-        }
-
-        function configureFinanceLocally() {
-            const mode = prompt("1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
-            let modeStr = (mode === '2') ? 'savings' : 'debt';
-            const target = prompt("Цель (Млн):", fTarget);
-            
-            if(mode && target) {
-                fMode = modeStr;
-                fTarget = parseFloat(target.replace(',', '.'));
-                updateFinUI();
-                pendingUpdates['fin_mode'] = fMode;
-                pendingUpdates['fin_target'] = fTarget;
-            }
-        }
-
-        // --- ФИНАЛЬНОЕ СОХРАНЕНИЕ ---
         function saveAll() {
             tg.HapticFeedback.notificationOccurred('success');
-            const habitsMap = {};
-            userHabits.forEach(h => { habitsMap[h.name] = h.checked; });
-            
-            const btn = document.querySelector('.fab-save');
-            btn.innerHTML = '✅';
-            
-            // Собираем ВСЁ в один пакет
-            const finalData = {
-                type: 'batch_habits', // Основной тип для бота
-                habits: habitsMap,
-                energy: document.getElementById('energy-slider').value,
-                sleep: currentSleep,
-                note: document.getElementById('daily-note').value,
-                earned: document.getElementById('money-earned').value,
-                
-                // Домешиваем изменения из корзины
-                ...pendingUpdates 
-            };
-
-            setTimeout(() => {
-                tg.sendData(JSON.stringify(finalData));
-            }, 500);
+            const habitsMap = {}; userHabits.forEach(h => { habitsMap[h.name] = h.checked; });
+            const btn = document.querySelector('.fab-save'); btn.innerHTML = '✅';
+            const finalData = { type: 'batch_habits', habits: habitsMap, energy: document.getElementById('energy-slider').value, sleep: currentSleep, note: document.getElementById('daily-note').value, earned: document.getElementById('money-earned').value, ...pendingUpdates };
+            setTimeout(() => { tg.sendData(JSON.stringify(finalData)); }, 500);
         }
     </script>
 </body>
