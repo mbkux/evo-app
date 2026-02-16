@@ -17,29 +17,25 @@
             overflow-x: hidden;
         }
 
-        /* --- НАВИГАЦИЯ (BOTTOM TAB BAR) --- */
+        /* НАВИГАЦИЯ */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: 65px; background: rgba(28, 28, 30, 0.95);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-around; align-items: center;
-            z-index: 1000; padding-bottom: 10px; /* Для iPhone X+ */
+            z-index: 1000; padding-bottom: 10px;
         }
-        .nav-item {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0.5; transition: 0.2s; cursor: pointer; width: 60px;
-        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s; cursor: pointer; width: 60px; }
         .nav-item.active { opacity: 1; transform: scale(1.1); }
         .nav-icon { font-size: 24px; margin-bottom: 2px; }
         .nav-label { font-size: 10px; font-weight: 500; }
 
-        /* --- Вкл/Выкл Вкладок --- */
         .tab-content { display: none; animation: fadeEffect 0.2s; }
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* --- КНОПКА СОХРАНЕНИЯ (FAB) --- */
+        /* FAB (Save) */
         .fab-save {
             position: fixed; bottom: 85px; right: 20px;
             width: 56px; height: 56px; border-radius: 28px;
@@ -51,7 +47,7 @@
         }
         .fab-save:active { transform: scale(0.9); }
 
-        /* --- HEADER & XP --- */
+        /* HEADER */
         .header { text-align: center; margin-bottom: 20px; }
         .avatar-container { position: relative; width: 80px; margin: 0 auto 10px; }
         .avatar {
@@ -60,50 +56,32 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px;
             border: 3px solid #1c1c1e;
         }
-        .streak-badge {
-            position: absolute; right: -5px; bottom: 0; background: #ff3b30; color: white;
-            padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;
-            border: 2px solid #1c1c1e;
-        }
+        .streak-badge { position: absolute; right: -5px; bottom: 0; background: #ff3b30; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; border: 2px solid #1c1c1e; }
         .xp-bar-container { background: #333; height: 6px; border-radius: 3px; width: 100px; margin: 5px auto; overflow: hidden; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s; }
         .level-text { font-size: 12px; opacity: 0.6; font-weight: bold; letter-spacing: 1px; }
 
-        /* --- КАРТОЧКИ --- */
-        .card {
-            background-color: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 15px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
+        /* CARDS */
+        .card { background-color: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
         .stat-label { font-size: 15px; font-weight: 500; opacity: 0.8; }
         .stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-        
         .edit-btn { background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; margin-left: 10px; cursor: pointer; }
         .config-btn { background: none; border: none; font-size: 18px; opacity: 0.5; margin-right: 10px; cursor: pointer; }
 
-        /* --- ГРАФИК --- */
         .chart-container { position: relative; height: 160px; width: 100%; margin-top: 15px; }
 
-        /* --- ЭЛЕМЕНТЫ УПРАВЛЕНИЯ --- */
+        /* CONTROLS */
         input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; }
         .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; background: #2c2c2e; padding: 5px; border-radius: 12px; }
         .sleep-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: #3a3a3c; color: white; font-size: 20px; font-weight: bold; }
-        
-        .note-input {
-            width: 100%; background: #2c2c2e; color: #fff; border: none; border-radius: 12px;
-            padding: 12px; margin-top: 15px; font-size: 14px; min-height: 50px; resize: none;
-        }
+        .note-input { width: 100%; background: #2c2c2e; color: #fff; border: none; border-radius: 12px; padding: 12px; margin-top: 15px; font-size: 14px; min-height: 50px; resize: none; }
 
-        /* --- ПРИВЫЧКИ --- */
+        /* HABITS */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .habit-name { font-size: 16px; font-weight: 500; }
         .delete-habit { color: #ff3b30; opacity: 0.3; margin-right: 15px; border: none; background: none; font-size: 18px; }
-        .add-habit-btn {
-            background: rgba(0,122,255,0.1); color: #007aff; border: 1px dashed #007aff;
-            width: 100%; padding: 14px; border-radius: 12px; margin-top: 15px; font-weight: 600;
-        }
-        
-        /* Switch */
+        .add-habit-btn { background: rgba(0,122,255,0.1); color: #007aff; border: 1px dashed #007aff; width: 100%; padding: 14px; border-radius: 12px; margin-top: 15px; font-weight: 600; }
         .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .3s; border-radius: 34px; }
@@ -111,23 +89,17 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* --- ФИНАНСЫ --- */
+        /* FINANCE */
         .debt-bar-bg { background: #2c2c2e; height: 16px; border-radius: 8px; margin: 15px 0 5px; overflow: hidden; position: relative; }
         .debt-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
         .mode-debt { background: linear-gradient(90deg, #ff453a, #ff9f0a); }
         .mode-savings { background: linear-gradient(90deg, #30d158, #63e6e2); }
-        .money-input {
-            width: 100%; background: #2c2c2e; color: #30d158; border: none;
-            border-radius: 12px; padding: 15px; font-size: 20px; font-weight: bold; margin-top: 15px; text-align: center;
-        }
-        .money-input::placeholder { color: #555; font-weight: normal; font-size: 16px; }
+        .money-input { width: 100%; background: #2c2c2e; color: #30d158; border: none; border-radius: 12px; padding: 15px; font-size: 20px; font-weight: bold; margin-top: 15px; text-align: center; }
 
-        /* --- ИСТОРИЯ (HEATMAP) --- */
+        /* HEATMAP */
         .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
         .day-sq { width: 100%; aspect-ratio: 1; border-radius: 4px; background: #2c2c2e; }
         .lv-0 { background: #2c2c2e; } .lv-1 { background: #0e4429; } .lv-2 { background: #006d32; } .lv-3 { background: #26a641; } .lv-4 { background: #39d353; box-shadow: 0 0 8px rgba(57, 211, 83, 0.4); }
-        
-        /* Стили заголовков секций */
         .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; padding-left: 5px; }
     </style>
 </head>
@@ -148,44 +120,29 @@
                 <span class="stat-label">⚖️ Текущий вес</span>
                 <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="weight-val">--</span>
-                    <button class="edit-btn" onclick="editParam('weight')">✏️</button>
+                    <button class="edit-btn" onclick="editWeightLocally()">✏️</button>
                 </div>
             </div>
             <div class="chart-container"><canvas id="weightChart"></canvas></div>
         </div>
 
         <div class="card">
-            <div class="stat-row">
-                <span class="stat-label">⚡ Энергия</span>
-                <span class="stat-value" id="energy-display">50%</span>
-            </div>
+            <div class="stat-row"><span class="stat-label">⚡ Энергия</span><span class="stat-value" id="energy-display">50%</span></div>
             <input type="range" id="energy-slider" min="0" max="100" value="50" step="5" oninput="updateEnergy(this.value)">
-            
             <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                <div class="stat-row">
-                    <span class="stat-label">😴 Сон</span>
-                    <span class="stat-value" id="sleep-val" style="color: #0a84ff;">7.0 ч</span>
-                </div>
-                <div class="sleep-control">
-                    <button class="sleep-btn" onclick="changeSleep(-0.5)">−</button>
-                    <button class="sleep-btn" onclick="changeSleep(0.5)">+</button>
-                </div>
+                <div class="stat-row"><span class="stat-label">😴 Сон</span><span class="stat-value" id="sleep-val" style="color: #0a84ff;">7.0 ч</span></div>
+                <div class="sleep-control"><button class="sleep-btn" onclick="changeSleep(-0.5)">−</button><button class="sleep-btn" onclick="changeSleep(0.5)">+</button></div>
             </div>
-
             <textarea class="note-input" id="daily-note" rows="1" placeholder="Заметка дня..."></textarea>
         </div>
     </div>
 
     <div id="tab-habits" class="tab-content">
         <div class="section-title">Привычки</div>
-        
         <div class="card">
-            <div class="stat-row" style="margin-bottom: 10px;">
-                <span class="stat-label">📅 Активность (28 дней)</span>
-            </div>
+            <div class="stat-row" style="margin-bottom: 10px;"><span class="stat-label">📅 Активность</span></div>
             <div class="heatmap-grid" id="heatmap"></div>
         </div>
-
         <div class="card">
             <div id="habits-container"></div>
             <button class="add-habit-btn" onclick="addNewHabit()">➕ Добавить привычку</button>
@@ -194,24 +151,19 @@
 
     <div id="tab-finance" class="tab-content">
         <div class="section-title">Финансы</div>
-        
         <div class="card">
             <div class="stat-row">
                 <div style="display: flex; align-items: center;">
-                    <button class="config-btn" onclick="configureFinance()">⚙️</button>
+                    <button class="config-btn" onclick="configureFinanceLocally()">⚙️</button>
                     <span class="stat-label" id="fin-label">Долг</span>
                 </div>
                 <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="debt-val">--</span>
-                    <button class="edit-btn" onclick="editParam('debt')">✏️</button>
+                    <button class="edit-btn" onclick="editDebtLocally()">✏️</button>
                 </div>
             </div>
-            
-            <div class="debt-bar-bg">
-                <div class="debt-bar-fill" id="debt-fill"></div>
-            </div>
+            <div class="debt-bar-bg"><div class="debt-bar-fill" id="debt-fill"></div></div>
             <div style="font-size: 11px; opacity: 0.5; text-align: right; margin-top: 5px;" id="fin-goal-text">Цель: --</div>
-
             <div style="margin-top: 30px;">
                 <span class="stat-label" style="opacity: 0.5;">Внести доход</span>
                 <input type="number" class="money-input" id="money-earned" placeholder="0 ₽">
@@ -222,69 +174,59 @@
     <button class="fab-save" onclick="saveAll()">💾</button>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-dash', this)">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Главная</div>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-habits', this)">
-            <div class="nav-icon">✅</div>
-            <div class="nav-label">Привычки</div>
-        </div>
-        <div class="nav-item" onclick="switchTab('tab-finance', this)">
-            <div class="nav-icon">💰</div>
-            <div class="nav-label">Финансы</div>
-        </div>
+        <div class="nav-item active" onclick="switchTab('tab-dash', this)"><div class="nav-icon">🏠</div><div class="nav-label">Главная</div></div>
+        <div class="nav-item" onclick="switchTab('tab-habits', this)"><div class="nav-icon">✅</div><div class="nav-label">Привычки</div></div>
+        <div class="nav-item" onclick="switchTab('tab-finance', this)"><div class="nav-icon">💰</div><div class="nav-label">Финансы</div></div>
     </nav>
 
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
 
-        // --- ЛОГИКА ТАБОВ ---
-        function switchTab(tabId, el) {
-            // Скрываем все табы
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            
-            // Показываем нужный
-            document.getElementById(tabId).classList.add('active');
-            el.classList.add('active');
-            
-            // Вибрация (Haptic Feedback)
-            tg.HapticFeedback.selectionChanged();
-        }
+        // --- 🔥 ГЛОБАЛЬНАЯ КОРЗИНА ИЗМЕНЕНИЙ ---
+        let pendingUpdates = {};
 
-        // --- ДАННЫЕ ---
+        // --- ИНИЦИАЛИЗАЦИЯ ДАННЫХ ---
+        // Вес
+        let currentWeight = params.get('w') || '110.5';
+        document.getElementById('weight-val').innerText = currentWeight;
+
+        // Финансы
+        let fMode = params.get('fmode') || 'debt'; 
+        let fTarget = parseFloat(params.get('ftarget') || '5.0');
+        let currentMoney = parseFloat(params.get('d') || '0'); 
+        
+        function updateFinUI() {
+            const barEl = document.getElementById('debt-fill');
+            const valEl = document.getElementById('debt-val');
+            const labelEl = document.getElementById('fin-label');
+            const goalEl = document.getElementById('fin-goal-text');
+
+            valEl.innerText = currentMoney + ' М';
+            goalEl.innerText = (fMode === 'debt' ? 'Старт: ' : 'Цель: ') + fTarget + ' М';
+            
+            let percent = 0;
+            if (fTarget > 0) { percent = (currentMoney / fTarget) * 100; if(percent > 100) percent = 100; }
+
+            // Сброс классов
+            barEl.className = 'debt-bar-fill';
+            if (fMode === 'savings') {
+                labelEl.innerText = "Накопления"; valEl.style.color = "#30d158"; 
+                barEl.classList.add('mode-savings'); 
+            } else {
+                labelEl.innerText = "Долг"; valEl.style.color = "#ff453a"; 
+                barEl.classList.add('mode-debt');
+            }
+            barEl.style.width = percent + '%';
+        }
+        updateFinUI();
+
+        // Прочие данные
         document.getElementById('lvl-badge').innerText = 'LEVEL ' + (params.get('lvl') || '1');
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
-        document.getElementById('weight-val').innerText = params.get('w') || '110.5';
-
-        // --- ФИНАНСЫ ---
-        const fMode = params.get('fmode') || 'debt'; 
-        const fTarget = parseFloat(params.get('ftarget') || '5.0');
-        const currentMoney = parseFloat(params.get('d') || '0'); 
         
-        const barEl = document.getElementById('debt-fill');
-        const valEl = document.getElementById('debt-val');
-        const labelEl = document.getElementById('fin-label');
-        const goalEl = document.getElementById('fin-goal-text');
-
-        valEl.innerText = currentMoney + ' М';
-        goalEl.innerText = (fMode === 'debt' ? 'Старт: ' : 'Цель: ') + fTarget + ' М';
-        
-        let percent = 0;
-        if (fTarget > 0) { percent = (currentMoney / fTarget) * 100; if(percent > 100) percent = 100; }
-
-        if (fMode === 'savings') {
-            labelEl.innerText = "Накопления"; valEl.style.color = "#30d158"; 
-            barEl.classList.add('mode-savings'); barEl.style.width = percent + '%';
-        } else {
-            labelEl.innerText = "Долг"; valEl.style.color = "#ff453a"; 
-            barEl.classList.add('mode-debt'); barEl.style.width = percent + '%';
-        }
-
-        // --- ГРАФИК ---
+        // График
         const hStr = params.get('h') || '110'; 
         const hData = hStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
@@ -292,15 +234,13 @@
         gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
         new Chart(ctx, { type: 'line', data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 0, hoverPointRadius: 4, fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } } });
 
-        // --- ПРИВЫЧКИ ---
+        // Привычки
         const rawHabits = params.get('list') || "";
         const statsStr = params.get('stats') || "";
         let userHabits = [];
         if (rawHabits) {
             const names = rawHabits.split(',');
-            names.forEach((name, i) => {
-                if(name.trim()) userHabits.push({ name: name.trim(), checked: statsStr[i] === '1' });
-            });
+            names.forEach((name, i) => { if(name.trim()) userHabits.push({ name: name.trim(), checked: statsStr[i] === '1' }); });
         }
         function renderHabits() {
             const container = document.getElementById('habits-container');
@@ -308,38 +248,23 @@
             userHabits.forEach((habit, index) => {
                 const row = document.createElement('div');
                 row.className = 'habit-row';
-                row.innerHTML = `
-                    <div style="display:flex; align-items:center;">
-                        <button class="delete-habit" onclick="deleteHabit(${index})">✕</button>
-                        <span class="habit-name">${habit.name}</span>
-                    </div>
-                    <label class="switch"><input type="checkbox" onchange="toggleHabit(${index})" ${habit.checked ? 'checked' : ''}><span class="slider"></span></label>`;
+                row.innerHTML = `<div style="display:flex; align-items:center;"><button class="delete-habit" onclick="deleteHabit(${index})">✕</button><span class="habit-name">${habit.name}</span></div><label class="switch"><input type="checkbox" onchange="toggleHabit(${index})" ${habit.checked ? 'checked' : ''}><span class="slider"></span></label>`;
                 container.appendChild(row);
             });
         }
-        function addNewHabit() {
-            const name = prompt("Название новой привычки:");
-            if (name && name.trim()) { userHabits.push({ name: name.trim(), checked: false }); renderHabits(); }
-        }
-        function deleteHabit(index) {
-            if(confirm('Удалить "' + userHabits[index].name + '"?')) { userHabits.splice(index, 1); renderHabits(); }
-        }
-        function toggleHabit(index) { 
-            userHabits[index].checked = !userHabits[index].checked; 
-            tg.HapticFeedback.impactOccurred('light'); 
-        }
+        function addNewHabit() { const name = prompt("Название:"); if (name && name.trim()) { userHabits.push({ name: name.trim(), checked: false }); renderHabits(); } }
+        function deleteHabit(index) { if(confirm('Удалить?')) { userHabits.splice(index, 1); renderHabits(); } }
+        function toggleHabit(index) { userHabits[index].checked = !userHabits[index].checked; tg.HapticFeedback.impactOccurred('light'); }
         renderHabits();
 
-        // --- ИСТОРИЯ (HEATMAP) ---
+        // Heatmap
         const mapData = params.get('map') || "0000000000000000000000000000"; 
         const heatmap = document.getElementById('heatmap');
         for (let char of mapData) {
-            const div = document.createElement('div');
-            div.className = 'day-sq lv-' + char;
-            heatmap.appendChild(div);
+            const div = document.createElement('div'); div.className = 'day-sq lv-' + char; heatmap.appendChild(div);
         }
 
-        // --- СОН & ЭНЕРГИЯ ---
+        // Сон и Энергия
         const savedEnergy = params.get('en') || '50';
         const savedSleep = parseFloat(params.get('sl') || '7.0');
         document.getElementById('energy-slider').value = savedEnergy;
@@ -347,8 +272,6 @@
         document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч";
         updateEnergy(savedEnergy);
 
-        // --- ФУНКЦИИ ---
-        function editParam(t) { let v = prompt("Новое значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
         function updateEnergy(val) { 
             let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; 
             document.getElementById('energy-display').innerText=val+"% "+e; 
@@ -358,29 +281,75 @@
             document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; 
             tg.HapticFeedback.selectionChanged();
         }
-        function configureFinance() {
-            const mode = prompt("1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
-            let modeStr = (mode === '2') ? 'savings' : 'debt';
-            const target = prompt("Цель (Млн):", "5.0");
-            if(mode && target) tg.sendData(JSON.stringify({type: 'update_fin_config', mode: modeStr, target: target.replace(',', '.')}));
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            el.classList.add('active');
+            tg.HapticFeedback.selectionChanged();
         }
 
+        // --- 🔥 НОВЫЕ ЛОКАЛЬНЫЕ ФУНКЦИИ (НЕ ЗАКРЫВАЮТ БОТА) ---
+
+        function editWeightLocally() {
+            let v = prompt("Новый вес (кг):", currentWeight);
+            if(v) {
+                v = v.replace(',', '.');
+                currentWeight = v;
+                document.getElementById('weight-val').innerText = v;
+                pendingUpdates['weight'] = v; // Сохраняем в корзину
+            }
+        }
+
+        function editDebtLocally() {
+            let v = prompt("Текущая сумма (М):", currentMoney);
+            if(v) {
+                v = parseFloat(v.replace(',', '.'));
+                currentMoney = v;
+                updateFinUI(); // Обновляем полоску
+                pendingUpdates['debt'] = v; // Сохраняем в корзину
+            }
+        }
+
+        function configureFinanceLocally() {
+            const mode = prompt("1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
+            let modeStr = (mode === '2') ? 'savings' : 'debt';
+            const target = prompt("Цель (Млн):", fTarget);
+            
+            if(mode && target) {
+                fMode = modeStr;
+                fTarget = parseFloat(target.replace(',', '.'));
+                updateFinUI();
+                pendingUpdates['fin_mode'] = fMode;
+                pendingUpdates['fin_target'] = fTarget;
+            }
+        }
+
+        // --- ФИНАЛЬНОЕ СОХРАНЕНИЕ ---
         function saveAll() {
             tg.HapticFeedback.notificationOccurred('success');
             const habitsMap = {};
             userHabits.forEach(h => { habitsMap[h.name] = h.checked; });
             
-            // Анимация кнопки
             const btn = document.querySelector('.fab-save');
             btn.innerHTML = '✅';
+            
+            // Собираем ВСЁ в один пакет
+            const finalData = {
+                type: 'batch_habits', // Основной тип для бота
+                habits: habitsMap,
+                energy: document.getElementById('energy-slider').value,
+                sleep: currentSleep,
+                note: document.getElementById('daily-note').value,
+                earned: document.getElementById('money-earned').value,
+                
+                // Домешиваем изменения из корзины
+                ...pendingUpdates 
+            };
+
             setTimeout(() => {
-                tg.sendData(JSON.stringify({
-                    type: 'batch_habits', 
-                    habits: habitsMap, 
-                    energy: document.getElementById('energy-slider').value,
-                    sleep: currentSleep, note: document.getElementById('daily-note').value,
-                    earned: document.getElementById('money-earned').value
-                }));
+                tg.sendData(JSON.stringify(finalData));
             }, 500);
         }
     </script>
