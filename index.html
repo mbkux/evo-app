@@ -8,6 +8,9 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+        /* ГЛАВНЫЙ ФИКС: Чтобы padding не ломал ширину */
+        * { box-sizing: border-box; }
+
         body {
             background-color: var(--tg-theme-bg-color, #1c1c1e);
             color: var(--tg-theme-text-color, #ffffff);
@@ -32,7 +35,7 @@
         .card { background-color: var(--tg-theme-secondary-bg-color, #2c2c2e); border-radius: 14px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
         .stat-value { font-size: 20px; font-weight: bold; }
-        .edit-btn { background: rgba(255,255,255,0.1); border: none; cursor: pointer; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .edit-btn { background: rgba(255,255,255,0.1); border: none; cursor: pointer; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 8px; }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
         
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -44,7 +47,12 @@
         input:checked + .slider:before { transform: translateX(22px); }
 
         .settings-btn { background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px dashed #555; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 12px; }
-        .mini-settings { position: absolute; top: 15px; right: 15px; font-size: 14px; opacity: 0.5; cursor: pointer; }
+        
+        /* Шестеренка теперь обычная кнопка, а не absolute */
+        .config-btn { 
+            font-size: 16px; cursor: pointer; opacity: 0.7; margin-right: 8px; 
+            background: none; border: none; padding: 0;
+        }
 
         .save-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background-color: var(--tg-theme-button-color, #007aff); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
         .note-input { width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 10px; }
@@ -53,15 +61,24 @@
         .sleep-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #333; color: white; font-size: 20px; cursor: pointer; }
         .sleep-val { font-size: 24px; font-weight: bold; color: #0a84ff; }
 
-        /* --- ФИНАНСОВЫЕ СТИЛИ (ОБНОВЛЕННЫЕ) --- */
+        /* --- ФИНАНСОВЫЕ СТИЛИ --- */
         .debt-bar-bg { background: #333; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; overflow: hidden; position: relative; }
         .debt-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
+        .mode-debt { background: linear-gradient(90deg, #ff3b30, #ff9500); } 
+        .mode-savings { background: linear-gradient(90deg, #34c759, #30b0c7); } 
         
-        /* Цвета режимов */
-        .mode-debt { background: linear-gradient(90deg, #ff3b30, #ff9500); } /* Красный */
-        .mode-savings { background: linear-gradient(90deg, #34c759, #30b0c7); } /* Зеленый */
-
-        .money-input { width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px; }
+        /* Исправленный input */
+        .money-input { 
+            width: 100%; 
+            background: #1c1c1e; 
+            color: #4cd964; 
+            border: 1px solid #333; 
+            border-radius: 8px; 
+            padding: 12px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-top: 10px; 
+        }
     </style>
 </head>
 <body>
@@ -74,11 +91,13 @@
         </div>
 
         <div class="card">
-            <div class="mini-settings" onclick="configureFinance()">⚙️</div>
-            
             <div class="stat-row">
-                <span id="fin-label">💸 Долг</span>
-                <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="display: flex; align-items: center;">
+                    <button class="config-btn" onclick="configureFinance()">⚙️</button>
+                    <span id="fin-label">💸 Долг</span>
+                </div>
+                
+                <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="debt-val">--</span>
                     <button class="edit-btn" onclick="editParam('debt')">✏️</button>
                 </div>
@@ -93,7 +112,7 @@
         </div>
 
         <div class="card">
-            <div class="stat-row"><span>⚖️ Вес</span><div style="display: flex; gap: 10px; align-items: center;"><span class="stat-value" id="weight-val">--</span><button class="edit-btn" onclick="editParam('weight')">✏️</button></div></div>
+            <div class="stat-row"><span>⚖️ Вес</span><div style="display: flex; align-items: center;"><span class="stat-value" id="weight-val">--</span><button class="edit-btn" onclick="editParam('weight')">✏️</button></div></div>
             <div class="chart-container"><canvas id="weightChart"></canvas></div>
         </div>
 
@@ -128,9 +147,9 @@
         document.getElementById('weight-val').innerText = params.get('w') || '110.5';
 
         // --- ЛОГИКА ФИНАНСОВ ---
-        const fMode = params.get('fmode') || 'debt'; // 'debt' или 'savings'
+        const fMode = params.get('fmode') || 'debt'; 
         const fTarget = parseFloat(params.get('ftarget') || '5.0');
-        const currentMoney = parseFloat(params.get('d') || '0'); // Используем параметр d для текущей суммы
+        const currentMoney = parseFloat(params.get('d') || '0'); 
 
         const barEl = document.getElementById('debt-fill');
         const valEl = document.getElementById('debt-val');
@@ -147,15 +166,14 @@
         }
 
         if (fMode === 'savings') {
-            labelEl.innerText = "💰 Накопления";
-            valEl.style.color = "#34c759"; // Зеленый текст
+            labelEl.innerText = "Накопления";
+            valEl.style.color = "#34c759"; 
             barEl.classList.add('mode-savings');
             barEl.style.width = percent + '%';
         } else {
-            labelEl.innerText = "💸 Долг";
-            valEl.style.color = "#ff3b30"; // Красный текст
+            labelEl.innerText = "Долг";
+            valEl.style.color = "#ff3b30"; 
             barEl.classList.add('mode-debt');
-            // Для долга: если 4.7 из 5.0, то полоска почти полная (94%)
             barEl.style.width = percent + '%';
         }
 
@@ -195,13 +213,10 @@
             if (newList) tg.sendData(JSON.stringify({type: 'update_config', list: newList}));
         }
 
-        // НАСТРОЙКА ФИНАНСОВ
         function configureFinance() {
             const mode = prompt("Выбери режим:\n1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
             let modeStr = (mode === '2') ? 'savings' : 'debt';
-            
-            const target = prompt("Введи Цель (в Миллионах). \nЕсли Долг - введи начальную сумму долга.\nЕсли Накопления - введи желаемую сумму.", "5.0");
-            
+            const target = prompt("Введи Цель (в Миллионах):", "5.0");
             if(mode && target) {
                 tg.sendData(JSON.stringify({
                     type: 'update_fin_config',
