@@ -51,7 +51,6 @@
         }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
 
-        /* Habit Styles */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -60,11 +59,9 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* ДЛЯ ВТОРОЙ КОЛОНКИ */
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
         .mini-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; text-align: center; }
 
-        /* --- НОВЫЕ СТИЛИ ДЛЯ ТРЕНИРОВКИ --- */
         .workout-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
         .workout-item {
             background: rgba(255,255,255,0.05); padding: 12px; margin-bottom: 8px; border-radius: 8px;
@@ -87,6 +84,11 @@
         
         .note-input { width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 10px; }
         input[type=range] { width: 100%; margin: 15px 0; }
+        
+        /* СТИЛИ ДЛЯ СНА */
+        .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
+        .sleep-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #333; color: white; font-size: 20px; cursor: pointer; }
+        .sleep-val { font-size: 24px; font-weight: bold; color: #0a84ff; }
     </style>
 </head>
 <body>
@@ -120,38 +122,31 @@
             <div class="habit-row"><span style="color: #ffcc00; font-weight: bold;">🏋️‍♂️ Тренировка</span><label class="switch"><input type="checkbox" id="h_gym"><span class="slider"></span></label></div>
 
             <button class="workout-toggle-btn" onclick="toggleWorkout()">📋 Открыть Программу</button>
-
             <div id="workout-section">
                 <h4 style="margin: 0 0 10px 0;">EVO Protocol 110</h4>
                 <ul class="workout-list">
-                    <li class="workout-item" onclick="this.classList.toggle('done')">
-                        <span>1. Жим ногами</span>
-                        <span style="font-weight:bold;">3x15</span>
-                    </li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')">
-                        <span>2. Тяга верхнего блока</span>
-                        <span style="font-weight:bold;">3x15</span>
-                    </li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')">
-                        <span>3. Жим гантелей (наклон)</span>
-                        <span style="font-weight:bold;">3x12</span>
-                    </li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')">
-                        <span>4. Гиперэкстензия</span>
-                        <span style="font-weight:bold;">3x15</span>
-                    </li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')">
-                        <span style="color:#ff3b30;">5. Гребля (Интервалы)</span>
-                        <span style="font-weight:bold;">15 мин</span>
-                    </li>
+                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>1. Жим ногами</span><b>3x15</b></li>
+                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>2. Тяга блока</span><b>3x15</b></li>
+                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>3. Жим гантелей</span><b>3x12</b></li>
+                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>4. Гиперэкстензия</span><b>3x15</b></li>
+                    <li class="workout-item" onclick="this.classList.toggle('done')"><span style="color:#ff3b30;">5. Гребля</span><b>15 мин</b></li>
                 </ul>
-                <p style="font-size: 12px; opacity: 0.6; text-align: center;">Нажимай на упражнение, когда сделал.</p>
             </div>
         </div>
 
         <div class="card">
-            <div class="stat-row"><span style="opacity: 0.7;">⚡ Энергия</span><span class="stat-value" id="energy-display">50% 😐</span></div>
+            <div class="stat-row"><span style="opacity: 0.7;">⚡ Энергия & Сон</span><span class="stat-value" id="energy-display">50% 😐</span></div>
             <input type="range" id="energy-slider" min="0" max="100" value="50" step="5" oninput="updateEnergy(this.value)">
+            
+            <div style="border-top: 1px solid #444; margin-top: 15px; padding-top: 15px;">
+                <span style="opacity: 0.7;">😴 Сколько спал?</span>
+                <div class="sleep-control">
+                    <button class="sleep-btn" onclick="changeSleep(-0.5)">-</button>
+                    <span class="sleep-val" id="sleep-val">7.0 ч</span>
+                    <button class="sleep-btn" onclick="changeSleep(0.5)">+</button>
+                </div>
+            </div>
+
             <textarea class="note-input" id="daily-note" rows="1" placeholder="Заметки..."></textarea>
         </div>
         
@@ -164,6 +159,7 @@
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
         
+        // Данные
         document.getElementById('lvl-badge').innerText = 'LVL ' + (params.get('lvl') || '1');
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
@@ -186,6 +182,7 @@
         document.getElementById('h_pills').checked = params.get('hp') === '1';
         document.getElementById('h_gym').checked = params.get('hgym') === '1';
 
+        // График
         const hStr = params.get('h') || '110'; 
         const hData = hStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
@@ -197,14 +194,18 @@
         function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
         function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
         
-        // --- ФУНКЦИЯ ОТКРЫТИЯ ТРЕНИРОВКИ ---
         function toggleWorkout() {
             const section = document.getElementById('workout-section');
-            if (section.style.display === 'block') {
-                section.style.display = 'none';
-            } else {
-                section.style.display = 'block';
-            }
+            section.style.display = (section.style.display === 'block') ? 'none' : 'block';
+        }
+
+        // --- ЛОГИКА СНА ---
+        let currentSleep = 7.0;
+        function changeSleep(delta) {
+            currentSleep += delta;
+            if(currentSleep < 0) currentSleep = 0;
+            if(currentSleep > 15) currentSleep = 15;
+            document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч";
         }
 
         function saveAll() {
@@ -218,6 +219,7 @@
                     pills: document.getElementById('h_pills').checked,
                     gym: document.getElementById('h_gym').checked,
                     energy: document.getElementById('energy-slider').value,
+                    sleep: currentSleep, // ОТПРАВЛЯЕМ СОН
                     note: document.getElementById('daily-note').value
                 };
                 tg.sendData(JSON.stringify(data));
