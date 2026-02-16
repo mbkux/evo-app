@@ -13,7 +13,7 @@
             background-color: var(--tg-theme-bg-color, #000000);
             color: var(--tg-theme-text-color, #ffffff);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 20px; padding-bottom: 100px; user-select: none;
+            margin: 0; padding: 15px; padding-bottom: 100px; user-select: none; /* Уменьшил отступы тела */
             overflow-x: hidden;
         }
 
@@ -61,8 +61,15 @@
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s; }
         .level-text { font-size: 12px; opacity: 0.6; font-weight: bold; letter-spacing: 1px; }
 
-        /* CARDS */
-        .card { background-color: #1c1c1e; border-radius: 16px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); }
+        /* CARDS (ИСПРАВЛЕНО: Уменьшены отступы) */
+        .card { 
+            background-color: #1c1c1e; 
+            border-radius: 16px; 
+            padding: 15px; /* Было 20px, стало 15px для экономии места */
+            margin-bottom: 15px; 
+            border: 1px solid rgba(255,255,255,0.05); 
+        }
+        
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
         .stat-label { font-size: 15px; font-weight: 500; opacity: 0.8; }
         .stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -72,10 +79,10 @@
         .chart-container { position: relative; height: 200px; width: 100%; margin-top: 15px; }
 
         /* DASHBOARD GRID */
-        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .dash-card { background: #1c1c1e; padding: 15px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .dash-val { font-size: 18px; font-weight: bold; margin-top: 5px; white-space: nowrap; }
-        .dash-lbl { font-size: 12px; opacity: 0.5; }
+        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .dash-card { background: #1c1c1e; padding: 12px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .dash-val { font-size: 17px; font-weight: bold; margin-top: 5px; white-space: nowrap; }
+        .dash-lbl { font-size: 11px; opacity: 0.5; }
 
         /* CONTROLS */
         input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; }
@@ -84,10 +91,10 @@
         .note-input { width: 100%; background: #2c2c2e; color: #fff; border: none; border-radius: 12px; padding: 12px; margin-top: 15px; font-size: 14px; min-height: 50px; resize: none; }
 
         /* HABITS */
-        .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .habit-name { font-size: 16px; font-weight: 500; }
         .delete-habit { color: #ff3b30; opacity: 0.3; margin-right: 15px; border: none; background: none; font-size: 18px; }
-        .add-habit-btn { background: rgba(0,122,255,0.1); color: #007aff; border: 1px dashed #007aff; width: 100%; padding: 14px; border-radius: 12px; margin-top: 15px; font-weight: 600; }
+        .add-habit-btn { background: rgba(0,122,255,0.1); color: #007aff; border: 1px dashed #007aff; width: 100%; padding: 12px; border-radius: 12px; margin-top: 15px; font-weight: 600; }
         .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .3s; border-radius: 34px; }
@@ -95,20 +102,24 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* FINANCE (NEW) */
+        /* FINANCE (FIXED LAYOUT) */
         .fin-bar-bg { background: #2c2c2e; height: 16px; border-radius: 8px; margin: 15px 0 5px; overflow: hidden; position: relative; }
         .fin-bar-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; } 
         .mode-debt { background: linear-gradient(90deg, #ff453a, #ff9f0a); }
         .mode-savings { background: linear-gradient(90deg, #30d158, #63e6e2); }
         
-        /* Блок ввода транзакции */
-        .fin-action-row { display: flex; gap: 10px; margin-top: 15px; }
+        /* Исправленный блок ввода */
+        .fin-action-row { display: flex; gap: 8px; margin-top: 15px; }
         .fin-input { 
-            flex: 1; background: #2c2c2e; border: 1px solid #444; color: #fff;
-            border-radius: 12px; padding: 12px; font-size: 16px; font-weight: bold;
+            flex: 1; /* Растягивается */
+            background: #2c2c2e; border: 1px solid #444; color: #fff;
+            border-radius: 10px; padding: 10px; font-size: 16px; font-weight: bold;
+            min-width: 0; /* Важно для flex контейнера */
         }
         .fin-btn {
-            border: none; border-radius: 12px; font-weight: bold; padding: 0 20px; cursor: pointer; color: #000;
+            border: none; border-radius: 10px; font-weight: bold; padding: 0 12px; cursor: pointer; color: #000;
+            font-size: 14px; /* Чуть меньше шрифт */
+            white-space: nowrap; /* Текст не переносится */
         }
         .btn-pay { background: #ff453a; color: white; }
         .btn-add { background: #30d158; color: white; }
@@ -264,16 +275,23 @@
         let tarDebt = parseFloat(params.get('td') || '5.0');
         let tarSav = parseFloat(params.get('ts') || '1.0');
 
-        // МИГРАЦИЯ СТАРЫХ ДАННЫХ (Если < 100, значит это миллионы)
         if (valDebt < 100) valDebt = valDebt * 1000000;
         if (valSav < 100) valSav = valSav * 1000000;
         if (tarDebt < 100) tarDebt = tarDebt * 1000000;
         if (tarSav < 100) tarSav = tarSav * 1000000;
 
-        // ФОРМАТЕР ДЕНЕГ
+        // 🔥 УМНОЕ ФОРМАТИРОВАНИЕ (БЕЗ ЛИШНИХ НУЛЕЙ)
         function formatMoney(amount) {
-            if (amount >= 1000000) return (amount / 1000000).toFixed(3).replace('.', ',') + ' млн ₽';
-            if (amount >= 1000) return (amount / 1000).toFixed(0) + ' тыс ₽';
+            if (amount >= 1000000) {
+                // Если миллионы. parseFloat отрезает "3.000" до "3"
+                let val = parseFloat((amount / 1000000).toFixed(3)); 
+                return val.toString().replace('.', ',') + ' млн ₽';
+            }
+            if (amount >= 1000) {
+                // Если тысячи
+                let val = parseFloat((amount / 1000).toFixed(1)); 
+                return val.toString().replace('.', ',') + ' тыс ₽';
+            }
             return amount + ' ₽';
         }
 
@@ -311,7 +329,7 @@
                     valDebt -= amount; // Долг уменьшаем
                     if (valDebt < 0) valDebt = 0;
                     pendingUpdates['debt'] = valDebt;
-                    inputEl.value = ''; // Очистить поле
+                    inputEl.value = ''; 
                 }
             } else {
                 inputEl = document.getElementById('input-sav');
@@ -319,14 +337,14 @@
                 if (!isNaN(amount) && amount > 0) {
                     valSav += amount; // Накопления увеличиваем
                     pendingUpdates['savings'] = valSav;
-                    inputEl.value = ''; // Очистить поле
+                    inputEl.value = ''; 
                 }
             }
             updateFinanceAll();
             tg.HapticFeedback.notificationOccurred('success');
         }
 
-        // РЕДАКТИРОВАНИЕ (КАРАНДАШ - ПРАВКА ИТОГА)
+        // РЕДАКТИРОВАНИЕ (КАРАНДАШ)
         function editMoneyTotal(type) {
             let oldVal = (type === 'debt') ? valDebt : valSav;
             let newVal = prompt("Точная сумма (руб):", oldVal);
@@ -338,7 +356,7 @@
             }
         }
 
-        // НАСТРОЙКА ЦЕЛИ (ШЕСТЕРЕНКА)
+        // НАСТРОЙКА ЦЕЛИ
         function setTarget(type) {
             let oldTar = (type === 'debt') ? tarDebt : tarSav;
             let newTar = prompt((type === 'debt' ? "Начальный долг (руб):" : "Цель (руб):"), oldTar);
