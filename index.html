@@ -16,7 +16,7 @@
             margin: 0; padding: 20px; padding-bottom: 100px; user-select: none;
         }
         .container { max-width: 400px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 20px; }
+        .header { text-align: center; margin-bottom: 20px; position: relative; }
         .avatar {
             width: 70px; height: 70px;
             background: linear-gradient(45deg, #ff0055, #00ddff);
@@ -29,6 +29,13 @@
         .xp-bar-container { background: #333; height: 8px; border-radius: 4px; width: 60%; margin: 5px auto; overflow: hidden; }
         .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s ease-out; }
         .xp-text { font-size: 11px; opacity: 0.6; margin-bottom: 15px; }
+
+        /* КНОПКА ИСТОРИИ (НОВОЕ) */
+        .history-btn {
+            position: absolute; right: 0; top: 0;
+            background: rgba(255,255,255,0.1); border: none; color: #fff;
+            padding: 8px 12px; border-radius: 8px; font-size: 12px; cursor: pointer;
+        }
 
         .card { background-color: var(--tg-theme-secondary-bg-color, #2c2c2e); border-radius: 14px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: relative; }
         .stat-row { display: flex; justify-content: space-between; align-items: center; }
@@ -63,15 +70,50 @@
         .mode-debt { background: linear-gradient(90deg, #ff3b30, #ff9500); } 
         .mode-savings { background: linear-gradient(90deg, #34c759, #30b0c7); } 
         .money-input { width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px; }
+
+        /* --- 🔥 НОВЫЕ СТИЛИ: ИСТОРИЯ (HEATMAP) --- */
+        #history-modal {
+            display: none; 
+            margin-top: 15px; padding: 15px; background: #222; border-radius: 12px;
+            animation: fadeIn 0.3s;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .heatmap-grid {
+            display: grid; 
+            grid-template-columns: repeat(7, 1fr); /* 7 дней в неделю */
+            gap: 6px; margin-top: 10px;
+        }
+        .day-sq {
+            width: 100%; aspect-ratio: 1; border-radius: 4px;
+            background: #333; transition: transform 0.1s;
+        }
+        .day-sq:hover { transform: scale(1.2); }
+        
+        /* Уровни активности */
+        .lv-0 { background: #3a3a3c; } /* 0% */
+        .lv-1 { background: #0e4429; } /* 25% */
+        .lv-2 { background: #006d32; } /* 50% */
+        .lv-3 { background: #26a641; } /* 75% */
+        .lv-4 { background: #39d353; box-shadow: 0 0 5px #39d353; } /* 100% (Neon) */
+        
+        .history-title { font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 5px; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <button class="history-btn" onclick="toggleHistory()">📊 История</button>
+            
             <div class="avatar">🦍<div class="streak-badge" id="streak-val">🔥 0</div></div>
             <span class="level-badge" id="lvl-badge">LVL 1</span>
             <div class="xp-bar-container"><div class="xp-bar-fill" id="xp-fill"></div></div>
             <div class="xp-text" id="xp-text">0 / 100 XP</div>
+
+            <div id="history-modal">
+                <div class="history-title">Активность (28 дней)</div>
+                <div class="heatmap-grid" id="heatmap"></div>
+            </div>
         </div>
 
         <div class="card">
@@ -123,6 +165,23 @@
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
         document.getElementById('weight-val').innerText = params.get('w') || '110.5';
+
+        // --- 🔥 ИСТОРИЯ (HEATMAP) ---
+        // Получаем строку вида "01234001..." (каждая цифра - активность за день)
+        const mapData = params.get('map') || "0000000000000000000000000000"; 
+        const heatmap = document.getElementById('heatmap');
+        
+        // Рисуем квадратики
+        for (let char of mapData) {
+            const div = document.createElement('div');
+            div.className = 'day-sq lv-' + char;
+            heatmap.appendChild(div);
+        }
+
+        function toggleHistory() {
+            const el = document.getElementById('history-modal');
+            el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+        }
 
         // --- ФИНАНСЫ ---
         const fMode = params.get('fmode') || 'debt'; 
@@ -188,36 +247,24 @@
         function toggleHabit(index) { userHabits[index].checked = !userHabits[index].checked; }
         renderHabits();
 
-        // --- 🔥 ИСПРАВЛЕНИЕ: СОХРАНЕНИЕ ЭНЕРГИИ И СНА ---
-        // Получаем сохраненные значения из URL или ставим дефолт
+        // --- ПАРАМЕТРЫ СНА И ЭНЕРГИИ ---
         const savedEnergy = params.get('en') || '50';
         const savedSleep = parseFloat(params.get('sl') || '7.0');
-
-        // Инициализируем элементы этими значениями
         document.getElementById('energy-slider').value = savedEnergy;
-        
         let currentSleep = savedSleep;
         document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч";
-        
-        // Обновляем текст энергии сразу при загрузке
         updateEnergy(savedEnergy);
-
 
         // --- ОБЩИЕ ФУНКЦИИ ---
         function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
         function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
-        
         function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; }
-        
         function configureFinance() {
             const mode = prompt("Выбери режим:\n1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
             let modeStr = (mode === '2') ? 'savings' : 'debt';
             const target = prompt("Цель (Млн):", "5.0");
-            if(mode && target) {
-                tg.sendData(JSON.stringify({type: 'update_fin_config', mode: modeStr, target: target.replace(',', '.')}));
-            }
+            if(mode && target) { tg.sendData(JSON.stringify({type: 'update_fin_config', mode: modeStr, target: target.replace(',', '.')})); }
         }
-
         function saveAll() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
             const habitsMap = {};
