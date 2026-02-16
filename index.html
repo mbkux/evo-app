@@ -8,9 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* ГЛАВНЫЙ ФИКС: Чтобы padding не ломал ширину */
         * { box-sizing: border-box; }
-
         body {
             background-color: var(--tg-theme-bg-color, #1c1c1e);
             color: var(--tg-theme-text-color, #ffffff);
@@ -38,7 +36,15 @@
         .edit-btn { background: rgba(255,255,255,0.1); border: none; cursor: pointer; font-size: 16px; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 8px; }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
         
+        /* ИНТЕРАКТИВНЫЕ ПРИВЫЧКИ */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .habit-left { display: flex; align-items: center; gap: 10px; }
+        .delete-btn { color: #ff3b30; font-size: 18px; cursor: pointer; opacity: 0.5; background: none; border: none; padding: 0; }
+        .add-habit-btn {
+            background: rgba(255,255,255,0.05); color: #007aff; border: 1px dashed #007aff;
+            width: 100%; padding: 12px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-weight: bold;
+        }
+
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .4s; border-radius: 34px; }
@@ -46,14 +52,7 @@
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        .settings-btn { background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px dashed #555; width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 12px; }
-        
-        /* Шестеренка теперь обычная кнопка, а не absolute */
-        .config-btn { 
-            font-size: 16px; cursor: pointer; opacity: 0.7; margin-right: 8px; 
-            background: none; border: none; padding: 0;
-        }
-
+        .config-btn { font-size: 16px; cursor: pointer; opacity: 0.7; margin-right: 8px; background: none; border: none; padding: 0; }
         .save-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background-color: var(--tg-theme-button-color, #007aff); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
         .note-input { width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 10px; }
         input[type=range] { width: 100%; margin: 15px 0; }
@@ -61,24 +60,12 @@
         .sleep-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #333; color: white; font-size: 20px; cursor: pointer; }
         .sleep-val { font-size: 24px; font-weight: bold; color: #0a84ff; }
 
-        /* --- ФИНАНСОВЫЕ СТИЛИ --- */
+        /* ФИНАНСЫ */
         .debt-bar-bg { background: #333; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; overflow: hidden; position: relative; }
         .debt-bar-fill { height: 100%; width: 0%; transition: width 1s ease-out; }
         .mode-debt { background: linear-gradient(90deg, #ff3b30, #ff9500); } 
         .mode-savings { background: linear-gradient(90deg, #34c759, #30b0c7); } 
-        
-        /* Исправленный input */
-        .money-input { 
-            width: 100%; 
-            background: #1c1c1e; 
-            color: #4cd964; 
-            border: 1px solid #333; 
-            border-radius: 8px; 
-            padding: 12px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            margin-top: 10px; 
-        }
+        .money-input { width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -96,18 +83,13 @@
                     <button class="config-btn" onclick="configureFinance()">⚙️</button>
                     <span id="fin-label">💸 Долг</span>
                 </div>
-                
                 <div style="display: flex; align-items: center;">
                     <span class="stat-value" id="debt-val">--</span>
                     <button class="edit-btn" onclick="editParam('debt')">✏️</button>
                 </div>
             </div>
-            
-            <div class="debt-bar-bg">
-                <div class="debt-bar-fill" id="debt-fill"></div>
-            </div>
+            <div class="debt-bar-bg"><div class="debt-bar-fill" id="debt-fill"></div></div>
             <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="fin-goal-text">Цель: --</div>
-
             <input type="number" class="money-input" id="money-earned" placeholder="💰 Заработал сегодня">
         </div>
 
@@ -117,9 +99,11 @@
         </div>
 
         <div class="card">
-            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">Мой Протокол</div>
+            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">Привычки</div>
+            
             <div id="habits-container"></div>
-            <button class="settings-btn" onclick="configureHabits()">⚙️ Настроить привычки</button>
+            
+            <button class="add-habit-btn" onclick="addNewHabit()">➕ Добавить привычку</button>
         </div>
 
         <div class="card">
@@ -139,18 +123,18 @@
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
         
-        // --- БАЗОВЫЕ ДАННЫЕ ---
+        // --- ДАННЫЕ ---
         document.getElementById('lvl-badge').innerText = 'LVL ' + (params.get('lvl') || '1');
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
         document.getElementById('weight-val').innerText = params.get('w') || '110.5';
 
-        // --- ЛОГИКА ФИНАНСОВ ---
+        // --- ФИНАНСЫ ---
         const fMode = params.get('fmode') || 'debt'; 
         const fTarget = parseFloat(params.get('ftarget') || '5.0');
         const currentMoney = parseFloat(params.get('d') || '0'); 
-
+        
         const barEl = document.getElementById('debt-fill');
         const valEl = document.getElementById('debt-val');
         const labelEl = document.getElementById('fin-label');
@@ -158,23 +142,16 @@
 
         valEl.innerText = currentMoney + ' М';
         goalEl.innerText = (fMode === 'debt' ? 'Старт: ' : 'Цель: ') + fTarget + ' М';
-
+        
         let percent = 0;
-        if (fTarget > 0) {
-            percent = (currentMoney / fTarget) * 100;
-            if(percent > 100) percent = 100;
-        }
+        if (fTarget > 0) { percent = (currentMoney / fTarget) * 100; if(percent > 100) percent = 100; }
 
         if (fMode === 'savings') {
-            labelEl.innerText = "Накопления";
-            valEl.style.color = "#34c759"; 
-            barEl.classList.add('mode-savings');
-            barEl.style.width = percent + '%';
+            labelEl.innerText = "Накопления"; valEl.style.color = "#34c759"; 
+            barEl.classList.add('mode-savings'); barEl.style.width = percent + '%';
         } else {
-            labelEl.innerText = "Долг";
-            valEl.style.color = "#ff3b30"; 
-            barEl.classList.add('mode-debt');
-            barEl.style.width = percent + '%';
+            labelEl.innerText = "Долг"; valEl.style.color = "#ff3b30"; 
+            barEl.classList.add('mode-debt'); barEl.style.width = percent + '%';
         }
 
         // --- ГРАФИК ---
@@ -185,54 +162,102 @@
         gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
         new Chart(ctx, { type: 'line', data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true } } } });
 
-        // --- ДИНАМИЧЕСКИЕ ПРИВЫЧКИ ---
-        const rawHabits = params.get('list') || "Без сахара,Вода 2л,Шаги 10к,Омега-3,Магний B6,Тренировка";
-        const habitList = rawHabits.split(',');
-        const statsStr = params.get('stats') || "0".repeat(habitList.length);
-        const container = document.getElementById('habits-container');
-
-        habitList.forEach((habit, index) => {
-            const cleanName = habit.trim();
-            if(!cleanName) return;
-            const isChecked = statsStr[index] === '1';
-            const row = document.createElement('div');
-            row.className = 'habit-row';
-            row.innerHTML = `<span>${cleanName}</span><label class="switch"><input type="checkbox" class="habit-checkbox" data-name="${cleanName}" ${isChecked ? 'checked' : ''}><span class="slider"></span></label>`;
-            container.appendChild(row);
-        });
-
-        // --- ФУНКЦИИ ---
-        function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
-        function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
+        // --- 🔥 ЛОГИКА ИНТЕРАКТИВНЫХ ПРИВЫЧЕК ---
         
-        let currentSleep = 7.0;
-        function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; }
-
-        function configureHabits() {
-            const newList = prompt("Введи список привычек через запятую:", habitList.join(', '));
-            if (newList) tg.sendData(JSON.stringify({type: 'update_config', list: newList}));
+        // 1. Инициализация списка
+        const rawHabits = params.get('list') || "";
+        const statsStr = params.get('stats') || "";
+        
+        // Массив объектов: [{name: "Сахар", active: true}, ...]
+        let userHabits = [];
+        
+        if (rawHabits) {
+            const names = rawHabits.split(',');
+            names.forEach((name, i) => {
+                if(name.trim()) {
+                    userHabits.push({
+                        name: name.trim(),
+                        checked: statsStr[i] === '1'
+                    });
+                }
+            });
         }
 
+        // 2. Функция отрисовки (Render)
+        function renderHabits() {
+            const container = document.getElementById('habits-container');
+            container.innerHTML = ''; // Очищаем
+
+            userHabits.forEach((habit, index) => {
+                const row = document.createElement('div');
+                row.className = 'habit-row';
+                row.innerHTML = `
+                    <div class="habit-left">
+                        <button class="delete-btn" onclick="deleteHabit(${index})">🗑</button>
+                        <span>${habit.name}</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" onchange="toggleHabit(${index})" ${habit.checked ? 'checked' : ''}>
+                        <span class="slider"></span>
+                    </label>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // 3. Действия
+        function addNewHabit() {
+            const name = prompt("Название новой привычки:");
+            if (name && name.trim()) {
+                userHabits.push({ name: name.trim(), checked: false });
+                renderHabits(); // Перерисовываем
+            }
+        }
+
+        function deleteHabit(index) {
+            if(confirm('Удалить привычку "' + userHabits[index].name + '"?')) {
+                userHabits.splice(index, 1);
+                renderHabits();
+            }
+        }
+
+        function toggleHabit(index) {
+            userHabits[index].checked = !userHabits[index].checked;
+        }
+
+        // Запуск при старте
+        renderHabits();
+
+
+        // --- ОБЩИЕ ФУНКЦИИ ---
+        function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
+        function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
+        let currentSleep = 7.0;
+        function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; }
+        
         function configureFinance() {
             const mode = prompt("Выбери режим:\n1 - Долг (Красный)\n2 - Накопления (Зеленый)", "1");
             let modeStr = (mode === '2') ? 'savings' : 'debt';
-            const target = prompt("Введи Цель (в Миллионах):", "5.0");
+            const target = prompt("Цель (Млн):", "5.0");
             if(mode && target) {
-                tg.sendData(JSON.stringify({
-                    type: 'update_fin_config',
-                    mode: modeStr,
-                    target: target.replace(',', '.')
-                }));
+                tg.sendData(JSON.stringify({type: 'update_fin_config', mode: modeStr, target: target.replace(',', '.')}));
             }
         }
 
         function saveAll() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            const habitsData = {};
-            document.querySelectorAll('.habit-checkbox').forEach(cb => habitsData[cb.getAttribute('data-name')] = cb.checked);
+            
+            // Собираем данные из массива userHabits
+            // Формат для бота: Словарь { "Имя": true/false }
+            const habitsMap = {};
+            userHabits.forEach(h => {
+                habitsMap[h.name] = h.checked;
+            });
+
             setTimeout(() => {
                 tg.sendData(JSON.stringify({
-                    type: 'batch_habits', habits: habitsData,
+                    type: 'batch_habits', 
+                    habits: habitsMap, // Бот сам поймет, что список обновился
                     energy: document.getElementById('energy-slider').value,
                     sleep: currentSleep, note: document.getElementById('daily-note').value,
                     earned: document.getElementById('money-earned').value
