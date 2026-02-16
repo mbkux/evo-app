@@ -50,38 +50,34 @@
             display: flex; align-items: center; justify-content: center;
         }
         .chart-container { position: relative; height: 150px; width: 100%; margin-top: 15px; }
+        
+        /* ДИНАМИЧЕСКИЕ ПРИВЫЧКИ */
         .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .habit-row:last-child { border-bottom: none; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .4s; border-radius: 34px; }
         .slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: #34c759; }
         input:checked + .slider:before { transform: translateX(22px); }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.05); color: #aaa; border: 1px dashed #555;
+            width: 100%; padding: 10px; border-radius: 8px; margin-top: 10px; cursor: pointer; font-size: 12px;
+        }
+
+        /* ОСТАЛЬНОЕ */
         .grid-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
         .mini-card { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; text-align: center; }
-        .workout-list { list-style: none; padding: 0; margin: 10px 0 0 0; }
-        .workout-item { background: rgba(255,255,255,0.05); padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
-        .workout-item.done { background: rgba(52, 199, 89, 0.2); opacity: 0.6; text-decoration: line-through; }
-        .workout-toggle-btn { background: #ff9500; color: #000; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        #workout-section { display: none; margin-top: 15px; border-top: 1px solid #444; padding-top: 15px; }
         .save-btn { position: fixed; bottom: 20px; left: 20px; right: 20px; background-color: var(--tg-theme-button-color, #007aff); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100; }
         .note-input { width: 100%; background: #1c1c1e; color: #fff; border: 1px solid #444; border-radius: 8px; padding: 10px; margin-top: 10px; }
         input[type=range] { width: 100%; margin: 15px 0; }
         .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; }
         .sleep-btn { width: 40px; height: 40px; border-radius: 50%; border: none; background: #333; color: white; font-size: 20px; cursor: pointer; }
         .sleep-val { font-size: 24px; font-weight: bold; color: #0a84ff; }
-        .stack-label { font-size: 14px; opacity: 0.8; }
-        .stack-sub { font-size: 11px; opacity: 0.5; }
-
-        /* --- ФИНАНСОВЫЕ СТИЛИ --- */
         .debt-bar-bg { background: #333; height: 12px; border-radius: 6px; width: 100%; margin: 10px 0; overflow: hidden; position: relative; }
-        /* Красная полоска долга */
         .debt-bar-fill { height: 100%; background: linear-gradient(90deg, #ff3b30, #ff9500); width: 0%; transition: width 1s ease-out; }
-        .money-input {
-            width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333;
-            border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px;
-        }
-        .money-input::placeholder { color: #555; font-weight: normal; }
+        .money-input { width: 100%; background: #1c1c1e; color: #4cd964; border: 1px solid #333; border-radius: 8px; padding: 12px; font-size: 18px; font-weight: bold; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -101,13 +97,9 @@
                     <button class="edit-btn" onclick="editParam('debt')">✏️</button>
                 </div>
             </div>
-            
-            <div class="debt-bar-bg">
-                <div class="debt-bar-fill" id="debt-fill"></div>
-            </div>
+            <div class="debt-bar-bg"><div class="debt-bar-fill" id="debt-fill"></div></div>
             <div style="font-size: 11px; opacity: 0.5; text-align: right;">Цель: 0 руб</div>
-
-            <input type="number" class="money-input" id="money-earned" placeholder="💰 Заработал сегодня (руб)">
+            <input type="number" class="money-input" id="money-earned" placeholder="💰 Заработал сегодня">
         </div>
 
         <div class="card">
@@ -116,30 +108,11 @@
         </div>
 
         <div class="card">
-            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">План на сегодня</div>
-            <div class="habit-row"><span>🚫 Без Сахара</span><label class="switch"><input type="checkbox" id="h_sugar"><span class="slider"></span></label></div>
-            <div class="habit-row"><span>💧 Вода (2л)</span><label class="switch"><input type="checkbox" id="h_water"><span class="slider"></span></label></div>
-            <div class="habit-row"><span>🚶‍♂️ Шаги (10к)</span><label class="switch"><input type="checkbox" id="h_steps"><span class="slider"></span></label></div>
+            <div style="margin-bottom: 10px; opacity: 0.5; font-size: 12px; text-transform: uppercase;">Мой Протокол</div>
             
-            <div style="margin: 15px 0 5px 0; border-top: 1px solid #444; padding-top: 10px;">
-                <div style="opacity: 0.5; font-size: 12px; text-transform: uppercase; margin-bottom: 10px;">💊 STACK</div>
-                <div class="habit-row"><div><div class="stack-label">🐟 Омега-3</div><div class="stack-sub">Утро / Обед</div></div><label class="switch"><input type="checkbox" id="h_omega"><span class="slider"></span></label></div>
-                <div class="habit-row"><div><div class="stack-label">🌙 Магний B6</div><div class="stack-sub">Вечер</div></div><label class="switch"><input type="checkbox" id="h_magnesium"><span class="slider"></span></label></div>
-            </div>
-            
-            <div class="habit-row" style="margin-top: 10px; border-top: 1px solid #444; padding-top: 15px;"><span style="color: #ffcc00; font-weight: bold;">🏋️‍♂️ Тренировка</span><label class="switch"><input type="checkbox" id="h_gym"><span class="slider"></span></label></div>
-            
-            <button class="workout-toggle-btn" onclick="toggleWorkout()">📋 Открыть Программу</button>
-            <div id="workout-section">
-                <h4 style="margin: 0 0 10px 0;">EVO Protocol 110</h4>
-                <ul class="workout-list">
-                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>1. Жим ногами</span><b>3x15</b></li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>2. Тяга блока</span><b>3x15</b></li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>3. Жим гантелей</span><b>3x12</b></li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')"><span>4. Гиперэкстензия</span><b>3x15</b></li>
-                    <li class="workout-item" onclick="this.classList.toggle('done')"><span style="color:#ff3b30;">5. Гребля</span><b>15 мин</b></li>
-                </ul>
-            </div>
+            <div id="habits-container"></div>
+
+            <button class="settings-btn" onclick="configureHabits()">⚙️ Настроить привычки (Добавить/Удалить)</button>
         </div>
 
         <div class="card">
@@ -159,38 +132,20 @@
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
         
-        // --- ДАННЫЕ ---
+        // --- БАЗОВЫЕ ДАННЫЕ ---
         document.getElementById('lvl-badge').innerText = 'LVL ' + (params.get('lvl') || '1');
         document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
         document.getElementById('xp-text').innerText = (params.get('xp') || '0') + ' / 100 XP';
         document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
         
-        // ВЕС
-        const w = params.get('w') || '110.5';
-        document.getElementById('weight-val').innerText = w;
-
-        // ДОЛГ (Логика отображения)
+        document.getElementById('weight-val').innerText = params.get('w') || '110.5';
+        
         const debtStr = params.get('d') || '4.7';
         document.getElementById('debt-val').innerText = debtStr + ' М';
-        
-        // Рисуем полоску долга (допустим старт был 5.0, сейчас 4.7)
-        // Чем меньше долг, тем меньше полоска.
-        // Или наоборот: "Прогресс погашения". Давай сделаем: Чем больше долг, тем длиннее красная линия.
-        // Примем Максимум за 5.0М
-        const debtVal = parseFloat(debtStr);
-        const maxDebt = 5.0; 
-        const debtPercent = Math.min(100, (debtVal / maxDebt) * 100);
+        const debtPercent = Math.min(100, (parseFloat(debtStr) / 5.0) * 100);
         document.getElementById('debt-fill').style.width = debtPercent + '%';
 
-        // Галочки
-        document.getElementById('h_sugar').checked = params.get('hs') === '1';
-        document.getElementById('h_water').checked = params.get('hw') === '1';
-        document.getElementById('h_steps').checked = params.get('hst') === '1';
-        document.getElementById('h_omega').checked = params.get('ho') === '1';
-        document.getElementById('h_magnesium').checked = params.get('hm') === '1';
-        document.getElementById('h_gym').checked = params.get('hgym') === '1';
-
-        // График
+        // ГРАФИК
         const hStr = params.get('h') || '110'; 
         const hData = hStr.split(',').map(parseFloat);
         const ctx = document.getElementById('weightChart').getContext('2d');
@@ -198,29 +153,87 @@
         gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
         new Chart(ctx, { type: 'line', data: { labels: hData.map((_, i) => i + 1), datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: true } } } });
 
+        // --- 🛠 ДИНАМИЧЕСКИЕ ПРИВЫЧКИ ---
+        // Получаем список привычек из URL (они приходят через запятую)
+        // Пример: &habits=Без сахара,Вода,Зал
+        // А статусы приходят как &s_Без_сахара=1
+        
+        const rawHabits = params.get('list') || "Без сахара,Вода 2л,Шаги 10к,Омега-3,Магний B6,Тренировка";
+        const habitList = rawHabits.split(',');
+        const container = document.getElementById('habits-container');
+
+        habitList.forEach(habit => {
+            const cleanName = habit.trim();
+            if(!cleanName) return;
+
+            // Проверяем статус (1 или 0)
+            // URL кодировка может заменять пробелы, поэтому ищем аккуратно
+            const statusKey = 's_' + encodeURIComponent(cleanName);
+            // Но в URL params.get декодирует сам.
+            // Проблема: в URL бот передает s_0, s_1 и т.д. по порядку?
+            // НЕТ, лучше передать статус по порядку или по имени.
+            // Давай так: Бот передает список имен в 'list'.
+            // И передает строку состояний в 'stats' (например "101001")
+        });
+
+        const statsStr = params.get('stats') || "0".repeat(habitList.length);
+        
+        habitList.forEach((habit, index) => {
+            const cleanName = habit.trim();
+            if(!cleanName) return;
+            
+            const isChecked = statsStr[index] === '1';
+            
+            const row = document.createElement('div');
+            row.className = 'habit-row';
+            row.innerHTML = `
+                <span>${cleanName}</span>
+                <label class="switch">
+                    <input type="checkbox" class="habit-checkbox" data-name="${cleanName}" ${isChecked ? 'checked' : ''}>
+                    <span class="slider"></span>
+                </label>
+            `;
+            container.appendChild(row);
+        });
+
+        // --- ФУНКЦИИ ---
         function editParam(t) { let v = prompt("Значение:"); if(v) tg.sendData(JSON.stringify({type:t, value:v.replace(',','.')})); }
         function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
-        function toggleWorkout() { const section = document.getElementById('workout-section'); section.style.display = (section.style.display === 'block') ? 'none' : 'block'; }
         
         let currentSleep = 7.0;
         function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; }
 
+        // НАСТРОЙКА ПРИВЫЧЕК
+        function configureHabits() {
+            const currentList = habitList.join(', ');
+            const newList = prompt("Введи список привычек через запятую:", currentList);
+            if (newList && newList !== currentList) {
+                // Отправляем боту новый конфиг
+                tg.sendData(JSON.stringify({
+                    type: 'update_config',
+                    list: newList
+                }));
+            }
+        }
+
+        // СОХРАНЕНИЕ
         function saveAll() {
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            
+            // Собираем динамические привычки
+            const habitsData = {};
+            document.querySelectorAll('.habit-checkbox').forEach(cb => {
+                habitsData[cb.getAttribute('data-name')] = cb.checked;
+            });
+
             setTimeout(() => {
                 const data = {
                     type: 'batch_habits',
-                    sugar: document.getElementById('h_sugar').checked,
-                    water: document.getElementById('h_water').checked,
-                    steps: document.getElementById('h_steps').checked,
-                    omega: document.getElementById('h_omega').checked,
-                    magnesium: document.getElementById('h_magnesium').checked,
-                    gym: document.getElementById('h_gym').checked,
+                    habits: habitsData, // Теперь это объект { "Сахар": true, "Зал": false }
                     energy: document.getElementById('energy-slider').value,
                     sleep: currentSleep,
                     note: document.getElementById('daily-note').value,
-                    // НОВОЕ: ДЕНЬГИ
-                    earned: document.getElementById('money-earned').value // Передаем заработок
+                    earned: document.getElementById('money-earned').value
                 };
                 tg.sendData(JSON.stringify(data));
             }, 1000);
