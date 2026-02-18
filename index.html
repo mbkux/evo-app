@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO UNITS v3.7</title>
+    <title>EVO LEAGUES v3.8</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -58,12 +58,11 @@
         }
         .wilks-badge { font-size: 14px; color: var(--gold); font-weight: 800; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; }
 
-        /* SCROLLS */
+        /* SCROLLS & FILTERS */
         .anthro-scroll, .filter-scroll { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 15px; scrollbar-width: none; padding-bottom: 5px; }
         .anthro-card { min-width: 80px; background: #252527; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
         .anthro-val { font-size: 16px; font-weight: 800; margin-top: 5px; }
         .anthro-lbl { font-size: 10px; opacity: 0.5; text-transform: uppercase; }
-        
         .filter-btn { background: rgba(255,255,255,0.1); border: none; padding: 8px 16px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .filter-btn.active { background: #fff; color: #000; }
 
@@ -91,6 +90,23 @@
         .rank-master { color: #000; background: var(--silver); }
         .rank-titan { color: #000; background: var(--gold); }
         .rank-legend { color: #fff; background: var(--legend-grad); border: 1px solid #fff; }
+
+        /* LEADERBOARD STYLES */
+        .leaderboard-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .leader-item { 
+            display: flex; align-items: center; padding: 12px; background: #252527; 
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); 
+        }
+        .leader-item.me { border: 1px solid #34c759; background: rgba(52, 199, 89, 0.1); }
+        .rank-num { font-size: 18px; font-weight: 800; width: 35px; color: #888; text-align: center; }
+        .rank-1 { color: var(--gold); text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .rank-2 { color: var(--silver); }
+        .rank-3 { color: var(--bronze); }
+        
+        .leader-info { flex: 1; display: flex; flex-direction: column; margin-left: 10px; }
+        .leader-name { font-weight: 700; font-size: 14px; }
+        .leader-stat { font-size: 11px; opacity: 0.7; }
+        .leader-score { font-size: 16px; font-weight: 800; color: #fff; }
 
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -140,12 +156,51 @@
             <button class="filter-btn" onclick="filterDisc('run', this)">Бег</button>
             <button class="filter-btn" onclick="filterDisc('power', this)">Сила</button>
             <button class="filter-btn" onclick="filterDisc('gym', this)">Зал</button>
-            <button class="filter-btn" onclick="filterDisc('swim', this)">Вода</button>
-            <button class="filter-btn" onclick="filterDisc('cali', this)">Воркаут</button>
         </div>
 
         <div id="arena-container" class="arena-grid"></div>
         <button onclick="openAddModal()" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px dashed #555; color:#888; border-radius:12px; font-weight:600;">➕ Добавить дисциплину</button>
+    </div>
+
+    <div id="tab-top" class="tab-content">
+        <div class="section-title" style="text-align:center;">🏆 Топ Атлетов (Global)</div>
+        <div style="text-align:center; font-size:12px; opacity:0.5; margin-bottom:15px;">Сортировка по Коэффициенту Вилкса</div>
+        
+        <div class="leaderboard-list">
+            <div class="leader-item">
+                <div class="rank-num rank-1">1</div>
+                <div style="font-size:24px;">🦖</div>
+                <div class="leader-info"><div class="leader-name">Iron Mike</div><div class="leader-stat">Вес: 102кг</div></div>
+                <div class="leader-score">520 W</div>
+            </div>
+            <div class="leader-item">
+                <div class="rank-num rank-2">2</div>
+                <div style="font-size:24px;">🏋️‍♂️</div>
+                <div class="leader-info"><div class="leader-name">Svetlana Fit</div><div class="leader-stat">Вес: 58кг</div></div>
+                <div class="leader-score">485 W</div>
+            </div>
+            <div class="leader-item">
+                <div class="rank-num rank-3">3</div>
+                <div style="font-size:24px;">🏃</div>
+                <div class="leader-info"><div class="leader-name">Runner 2000</div><div class="leader-stat">Вес: 70кг</div></div>
+                <div class="leader-score">450 W</div>
+            </div>
+            
+            <div class="leader-item me">
+                <div class="rank-num">--</div>
+                <div style="font-size:24px;">🦍</div>
+                <div class="leader-info"><div class="leader-name">ТЫ (EVO USER)</div><div class="leader-stat">Твой Вилкс</div></div>
+                <div class="leader-score" id="user-wilks-rank">--</div>
+            </div>
+
+            <div class="leader-item" style="opacity:0.5">
+                <div class="rank-num">99</div>
+                <div style="font-size:24px;">🐣</div>
+                <div class="leader-info"><div class="leader-name">Newbie</div><div class="leader-stat">Вес: 80кг</div></div>
+                <div class="leader-score">120 W</div>
+            </div>
+        </div>
+        <div style="text-align:center; opacity:0.3; font-size:10px;">* Для участия в рейтинге нужна верификация</div>
     </div>
 
     <div id="tab-fin" class="tab-content">
@@ -174,6 +229,7 @@
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🏠</div><div class="nav-label">Герой</div></div>
         <div class="nav-item" onclick="switchTab('tab-body', this)"><div class="nav-icon">💪</div><div class="nav-label">Тело</div></div>
+        <div class="nav-item" onclick="switchTab('tab-top', this)"><div class="nav-icon">🏆</div><div class="nav-label">Топ</div></div>
         <div class="nav-item" onclick="switchTab('tab-fin', this)"><div class="nav-icon">💰</div><div class="nav-label">Казна</div></div>
     </nav>
 
@@ -187,45 +243,15 @@
             debt: 4.7, sav: 0.0
         };
 
-        // --- LIBRARY WITH UNITS IN DISPLAY ---
         const library = [
-            // RUNNING
             { id: 'run100', name: 'Бег 100м', cat: 'run', unit: 'сек', target: 9.58, type: 'min', legend: 'BOLT' },
-            { id: 'run200', name: 'Бег 200м', cat: 'run', unit: 'сек', target: 19.19, type: 'min', legend: 'BOLT' },
-            { id: 'run400', name: 'Бег 400м', cat: 'run', unit: 'сек', target: 43.03, type: 'min', legend: 'VAN NIEKERK' },
-            { id: 'run800', name: 'Бег 800м', cat: 'run', unit: 'мин', target: 1.40, type: 'min', legend: 'RUDISHA' }, 
-            { id: 'run1k', name: 'Бег 1 км', cat: 'run', unit: 'мин', target: 2.11, type: 'min', legend: 'NGE' },
-            { id: 'run5k', name: 'Бег 5 км', cat: 'run', unit: 'мин', target: 12.35, type: 'min', legend: 'CHEPTEGEI' },
-            { id: 'run10k', name: 'Бег 10 км', cat: 'run', unit: 'мин', target: 26.11, type: 'min', legend: 'CHEPTEGEI' },
-            { id: 'halfmarathon', name: 'Полумарафон', cat: 'run', unit: 'ч', target: 0.57, type: 'min', legend: 'KIPLIMO' },
-            { id: 'marathon', name: 'Марафон', cat: 'run', unit: 'ч', target: 2.00, type: 'min', legend: 'KIPTUM' },
-
-            // POWERLIFTING
             { id: 'bench', name: 'Жим лежа', cat: 'power', unit: 'кг', target: 355, type: 'max', legend: 'MADDOX' },
-            { id: 'squat', name: 'Присед (Raw)', cat: 'power', unit: 'кг', target: 490, type: 'max', legend: 'RAY WILLIAMS' },
+            { id: 'squat', name: 'Присед', cat: 'power', unit: 'кг', target: 490, type: 'max', legend: 'RAY' },
             { id: 'deadlift', name: 'Становая', cat: 'power', unit: 'кг', target: 501, type: 'max', legend: 'THOR' },
-            { id: 'ohp', name: 'Армейский жим', cat: 'power', unit: 'кг', target: 212, type: 'max', legend: 'SAVICKAS' },
-            { id: 'snatch', name: 'Рывок', cat: 'power', unit: 'кг', target: 225, type: 'max', legend: 'LASHA' },
-            { id: 'clean', name: 'Толчок', cat: 'power', unit: 'кг', target: 267, type: 'max', legend: 'LASHA' },
-
-            // GYM
             { id: 'legpress', name: 'Жим ногами', cat: 'gym', unit: 'кг', target: 1040, type: 'max', legend: 'COLEMAN' },
             { id: 'biceps', name: 'Бицепс (Strict)', cat: 'gym', unit: 'кг', target: 113, type: 'max', legend: 'CYPLENKOV' },
-            { id: 'dumb_bench', name: 'Жим гантелей', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'EDDIE HALL' },
-            { id: 'row', name: 'Тяга в наклоне', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'YATES' },
-            { id: 'farmers', name: 'Прогулка фермера', cat: 'gym', unit: 'кг', target: 300, type: 'max', legend: 'NOVICOV' },
-
-            // CALISTHENICS
             { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 105, type: 'max', legend: 'SEKI' },
-            { id: 'dips', name: 'Брусья (вес)', cat: 'cali', unit: 'кг', target: 195, type: 'max', legend: 'ZLAT' },
-            { id: 'pushups', name: 'Отжимания', cat: 'cali', unit: 'раз', target: 300, type: 'max', legend: 'LEGEND' },
-            { id: 'plank', name: 'Планка', cat: 'cali', unit: 'мин', target: 540, type: 'max', legend: 'SCALI' },
-            { id: 'burpee', name: 'Бёрпи (1 мин)', cat: 'cali', unit: 'раз', target: 48, type: 'max', legend: 'CROSSFIT' },
-            
-            // SWIMMING
-            { id: 'swim50', name: 'Плавание 50м', cat: 'swim', unit: 'сек', target: 20.91, type: 'min', legend: 'CIELO' },
-            { id: 'swim100', name: 'Плавание 100м', cat: 'swim', unit: 'сек', target: 46.80, type: 'min', legend: 'PAN ZHANLE' },
-            { id: 'swim1500', name: 'Плавание 1.5км', cat: 'swim', unit: 'мин', target: 14.31, type: 'min', legend: 'SUN YANG' }
+            { id: 'pushups', name: 'Отжимания', cat: 'cali', unit: 'раз', target: 300, type: 'max', legend: 'LEGEND' }
         ];
 
         let myDisc = [];
@@ -269,7 +295,6 @@
             updateWilks();
         }
 
-        // --- UPDATED SEARCH WITH UNITS ---
         function searchLib() {
             const val = document.getElementById('search-input').value.toLowerCase();
             const list = document.getElementById('modal-list');
@@ -277,23 +302,10 @@
             library.forEach(lib => {
                 if(myDisc.find(d => d.id === lib.id)) return;
                 if(!lib.name.toLowerCase().includes(val) && !lib.legend.toLowerCase().includes(val)) return;
-                
                 const div = document.createElement('div');
                 div.className = 'select-item';
-                div.innerHTML = `
-                    <div>
-                        <b>${lib.name}</b>
-                        <div style="font-size:10px; opacity:0.5;">
-                            🏆 REC: ${lib.target} ${lib.unit} (${lib.legend})
-                        </div>
-                    </div>
-                    <button style="background:none; border:none; color:#34c759; font-weight:bold; font-size:20px;">+</button>
-                `;
-                div.onclick = () => {
-                    myDisc.push({ id: lib.id, val: 0, ver: 0 });
-                    document.getElementById('add-modal').style.display = 'none';
-                    renderArena();
-                };
+                div.innerHTML = `<div><b>${lib.name}</b><div style="font-size:10px; opacity:0.5;">🏆 REC: ${lib.target} ${lib.unit} (${lib.legend})</div></div><button style="background:none; border:none; color:#34c759; font-weight:bold; font-size:20px;">+</button>`;
+                div.onclick = () => { myDisc.push({ id: lib.id, val: 0, ver: 0 }); document.getElementById('add-modal').style.display = 'none'; renderArena(); };
                 list.appendChild(div);
             });
         }
@@ -301,34 +313,32 @@
         function updateDisc(id) {
             const d = myDisc.find(x => x.id === id);
             const lib = library.find(l => l.id === id);
-            let action = prompt(`1. Результат (${lib.unit})\n2. Верификация\n3. Удалить`);
-            if(action === '1') {
-                let v = prompt(`Новый результат (${lib.unit}):`);
-                if(v) { d.val = parseFloat(v.replace(',','.')); renderArena(); }
-            }
-            if(action === '2') {
-                let l = prompt(`0-Нет, 1-Видео, 2-Офиц`);
-                if(l) { d.ver = parseInt(l); renderArena(); }
-            }
-            if(action === '3') {
-                if(confirm('Убрать?')) myDisc = myDisc.filter(x => x.id !== id); renderArena();
-            }
+            let a = prompt(`1. Ввести (${lib.unit})\n2. Верификация\n3. Удалить`);
+            if(a==='1'){ let v=prompt(`Результат:`); if(v) d.val=parseFloat(v.replace(',','.')); }
+            if(a==='2'){ let l=prompt('0-Нет, 1-Видео, 2-Офиц'); if(l) d.ver=parseInt(l); }
+            if(a==='3'){ if(confirm('Убрать?')) myDisc=myDisc.filter(x=>x.id!==id); }
+            renderArena();
         }
 
         function updateWilks() {
             const w = userData.weight; let total = 0;
             ['bench','squat','deadlift'].forEach(id => { const d = myDisc.find(x=>x.id===id); if(d) total += d.val; });
-            if(total > 0 && w > 0) document.getElementById('wilks-display').innerText = `WILKS: ${Math.floor(total * (500/w) / 5)}`;
+            // Calculate Score
+            let score = 0;
+            if(total > 0 && w > 0) score = Math.floor(total * (500/w) / 5);
+            
+            // Update UI in Two Places
+            document.getElementById('wilks-display').innerText = `WILKS: ${score}`;
+            document.getElementById('user-wilks-rank').innerText = `${score} W`;
         }
 
-        // GENERIC
         function openAddModal() { document.getElementById('search-input').value=''; searchLib(); document.getElementById('add-modal').style.display='flex'; }
         function editWeight() { let v=prompt('Вес (кг):'); if(v) { userData.weight=parseFloat(v); document.getElementById('val-weight').innerText=v+' кг'; updateWilks(); } }
         function editAnthro(k) { let v=prompt('Значение (см):'); if(v) { userData[k]=v; document.getElementById('val-'+k).innerText=v; } }
         function finAction(t) { let v=prompt('Сумма:'); if(v) { v=parseFloat(v); if(t==='sav') userData.sav+=v; else userData.debt-=v; document.getElementById('fin-sav').innerText=userData.sav.toFixed(2); document.getElementById('fin-debt').innerText=userData.debt.toFixed(2); } }
         function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
         function filterDisc(c,b) { document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderArena(c); }
-        function saveGame() { tg.HapticFeedback.notificationOccurred('success'); setTimeout(()=>{ tg.sendData(JSON.stringify({type:'save_v3_7', data:userData, disc:myDisc, quests:quests})); }, 300); }
+        function saveGame() { tg.HapticFeedback.notificationOccurred('success'); setTimeout(()=>{ tg.sendData(JSON.stringify({type:'save_v3_8', data:userData, disc:myDisc, quests:quests})); }, 300); }
         function renderQuests() { const c = document.getElementById('quests-container'); c.innerHTML = ''; quests.forEach(q => { const div = document.createElement('div'); div.className = `quest-item ${q.done?'done':''}`; div.onclick = () => { q.done=!q.done; renderQuests(); }; div.innerHTML = `<div>${q.name}</div><div>${q.done?'✅':'⭕'}</div>`; c.appendChild(div); }); }
         function addNewQuest() { let n = prompt("Задача:"); if(n) quests.push({id:Date.now(), name:n, done:false}); renderQuests(); }
 
