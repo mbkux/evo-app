@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO v3.4 FULL</title>
+    <title>EVO HALL OF FAME v3.5</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -23,6 +23,7 @@
             --silver: #e0e0e0;
             --bronze: #cd7f32;
             --blue-check: #3897f0;
+            --legend-grad: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
         }
 
         /* NAVIGATION */
@@ -43,14 +44,14 @@
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* HERO HEADER (MAIN TAB) */
+        /* HERO HEADER */
         .hero-header { display: flex; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .hero-avatar { width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #fff; margin-right: 15px; }
         .hero-info { flex: 1; }
         .hero-class { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         .hero-name { font-size: 18px; font-weight: 800; }
 
-        /* BODY HEADER (WILKS) */
+        /* BODY HEADER */
         .body-header { 
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 15px; background: linear-gradient(135deg, #1c1c1e, #2c2c2e); 
@@ -78,7 +79,7 @@
         }
         .filter-btn.active { background: #fff; color: #000; }
 
-        /* DISCIPLINES CARD */
+        /* ARENA GRID */
         .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .discipline-card { 
             background: #252527; border-radius: 16px; padding: 12px; 
@@ -87,6 +88,7 @@
         }
         .discipline-card:active { transform: scale(0.98); }
         
+        /* Badges */
         .verify-badge {
             position: absolute; top: 6px; right: 6px; font-size: 12px;
             width: 18px; height: 18px; border-radius: 50%;
@@ -103,7 +105,14 @@
         .disc-progress { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
         .disc-fill { height: 100%; background: #34c759; width: 0%; }
 
-        /* QUESTS (HERO TAB) */
+        /* Legend Style */
+        .rank-rookie { color: #888; background: rgba(255,255,255,0.1); }
+        .rank-athlete { color: #fff; background: #007aff; }
+        .rank-master { color: #000; background: var(--silver); }
+        .rank-titan { color: #000; background: var(--gold); }
+        .rank-legend { color: #fff; background: var(--legend-grad); box-shadow: 0 0 10px rgba(0,210,255,0.5); border: 1px solid #fff; }
+
+        /* QUESTS */
         .quest-item { display: flex; align-items: center; justify-content: space-between; background: #252527; padding: 12px; margin-bottom: 8px; border-radius: 12px; border-left: 4px solid #444; }
         .quest-item.done { opacity: 0.5; filter: grayscale(1); }
 
@@ -112,14 +121,14 @@
         .big-val { font-size: 24px; font-weight: 800; }
         .sub-val { font-size: 12px; opacity: 0.6; }
 
-        /* COMMON UI */
+        /* COMMON */
         .section-title { font-size: 18px; font-weight: 800; margin: 20px 0 10px 5px; }
         .fab-save { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; border-radius: 28px; background: #fff; color: #000; border: none; font-size: 24px; box-shadow: 0 4px 20px rgba(255,255,255,0.2); z-index: 999; }
         
         /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-card { background: #1c1c1e; width: 100%; max-width: 350px; border-radius: 20px; padding: 20px; max-height: 80vh; overflow-y: auto; }
-        .select-item { display: flex; align-items: center; gap: 10px; padding: 12px; background: #2c2c2e; margin-bottom: 8px; border-radius: 12px; }
+        .select-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #2c2c2e; margin-bottom: 8px; border-radius: 12px; }
     </style>
 </head>
 <body>
@@ -133,11 +142,11 @@
             </div>
             <div style="text-align: right;">
                 <div style="font-size:20px; font-weight:800;">Lvl 1</div>
-                <div style="font-size:10px; opacity:0.5;">УРОВЕНЬ</div>
+                <div style="font-size:10px; opacity:0.5;">XP</div>
             </div>
         </div>
 
-        <div class="section-title">⚡ Ежедневные задачи</div>
+        <div class="section-title">⚡ Задачи дня</div>
         <div id="quests-container"></div>
         <button onclick="addNewQuest()" style="width:100%; padding:12px; background:rgba(255,255,255,0.1); border:none; border-radius:12px; color:#888;">+ Задача</button>
     </div>
@@ -161,13 +170,13 @@
 
         <div class="filter-scroll">
             <button class="filter-btn active" onclick="filterDisc('all', this)">Все</button>
+            <button class="filter-btn" onclick="filterDisc('gym', this)">Зал</button>
             <button class="filter-btn" onclick="filterDisc('power', this)">Сила</button>
-            <button class="filter-btn" onclick="filterDisc('cali', this)">Воркаут</button>
             <button class="filter-btn" onclick="filterDisc('cardio', this)">Кардио</button>
+            <button class="filter-btn" onclick="filterDisc('cali', this)">Воркаут</button>
         </div>
 
         <div id="arena-container" class="arena-grid"></div>
-        
         <button onclick="openAddModal()" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px dashed #555; color:#888; border-radius:12px; font-weight:600;">➕ Добавить дисциплину</button>
     </div>
 
@@ -185,7 +194,7 @@
 
     <div class="modal-overlay" id="add-modal">
         <div class="modal-card">
-            <h3 style="margin-top:0; text-align:center;">Библиотека</h3>
+            <h3 style="margin-top:0; text-align:center;">Библиотека Рекордов</h3>
             <div id="modal-list"></div>
             <button onclick="document.getElementById('add-modal').style.display='none'" style="width:100%; padding:12px; margin-top:10px; background:#333; border:none; color:#fff; border-radius:12px;">Закрыть</button>
         </div>
@@ -203,34 +212,38 @@
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
 
-        // DATA STATE
         let userData = {
             weight: parseFloat(params.get('w')) || 109.6,
             chest: 0, waist: 0, biceps: 0, legs: 0,
             debt: 4.7, sav: 0.0
         };
 
-        // LIBRARY
+        // --- HALL OF FAME LIBRARY ---
         const library = [
-            { id: 'bench', name: 'Жим лежа', cat: 'power', unit: 'кг', target: 150, type: 'max' },
-            { id: 'squat', name: 'Присед', cat: 'power', unit: 'кг', target: 200, type: 'max' },
-            { id: 'deadlift', name: 'Становая', cat: 'power', unit: 'кг', target: 220, type: 'max' },
-            { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 30, type: 'max' },
-            { id: 'dips', name: 'Брусья', cat: 'cali', unit: 'раз', target: 50, type: 'max' },
-            { id: 'run5k', name: 'Бег 5км', cat: 'cardio', unit: 'мин', target: 20, type: 'min' }
+            // GYM & FITNESS (Added)
+            { id: 'legpress', name: 'Жим ногами', cat: 'gym', unit: 'кг', target: 1040, type: 'max', legend: 'COLEMAN' },
+            { id: 'biceps', name: 'Подъем на бицепс', cat: 'gym', unit: 'кг', target: 113, type: 'max', legend: 'CYPLENKOV' },
+            { id: 'dumbbell_bench', name: 'Жим гантелей', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'EDDIE' }, // Сумма двух
+            
+            // POWERLIFTING
+            { id: 'bench', name: 'Жим лежа', cat: 'power', unit: 'кг', target: 355, type: 'max', legend: 'MADDOX' },
+            { id: 'squat', name: 'Присед', cat: 'power', unit: 'кг', target: 490, type: 'max', legend: 'RAY' },
+            { id: 'deadlift', name: 'Становая', cat: 'power', unit: 'кг', target: 501, type: 'max', legend: 'THOR' },
+            
+            // CARDIO (Running)
+            { id: 'run100', name: 'Спринт 100м', cat: 'cardio', unit: 'сек', target: 9.58, type: 'min', legend: 'BOLT' },
+            { id: 'run5k', name: 'Бег 5км', cat: 'cardio', unit: 'мин', target: 12.6, type: 'min', legend: 'CHEPTGEI' },
+            { id: 'marathon', name: 'Марафон', cat: 'cardio', unit: 'ч', target: 2.01, type: 'min', legend: 'KIPTUM' },
+
+            // CALISTHENICS
+            { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 100, type: 'max', legend: 'HANNIBAL' }, // Max reps set
+            { id: 'plank', name: 'Планка', cat: 'cali', unit: 'мин', target: 540, type: 'max', legend: 'SCALI' } // 9 hours
         ];
 
-        // USER DISCIPLINES
-        let myDisc = []; 
+        let myDisc = [];
+        let quests = [{ id: 1, name: "Тренировка", done: false }, { id: 2, name: "Чтение", done: false }];
 
-        // QUESTS
-        let quests = [
-            { id: 1, name: "Тренировка", done: false },
-            { id: 2, name: "Чтение", done: false }
-        ];
-
-        // --- RENDER FUNCTIONS ---
-        
+        // --- RENDER ---
         function renderArena(filter = 'all') {
             const c = document.getElementById('arena-container');
             c.innerHTML = '';
@@ -241,16 +254,16 @@
                 let pct = 0;
                 if(d.val > 0) {
                     if(lib.type === 'max') pct = (d.val / lib.target) * 100;
-                    else pct = (lib.target / d.val) * 100;
+                    else pct = (lib.target / d.val) * 100; 
                 }
 
-                // Color Logic
-                let color = '#555'; let rank = 'НОВИЧОК';
-                if(pct >= 20) { color = '#007aff'; rank = 'АТЛЕТ'; }
-                if(pct >= 60) { color = '#cd7f32'; rank = 'ПРЕТЕНДЕНТ'; }
-                if(pct >= 80) { color = '#ffd700'; rank = 'ТИТАН'; }
+                // Rank System with LEGEND NAME
+                let color = '#555'; let rank = 'НОВИЧОК'; let rankClass = 'rank-rookie';
+                if(pct >= 20) { color = '#007aff'; rank = 'АТЛЕТ'; rankClass = 'rank-athlete'; }
+                if(pct >= 60) { color = '#cd7f32'; rank = 'ПРЕТЕНДЕНТ'; rankClass = 'rank-contender'; }
+                if(pct >= 80) { color = '#ffd700'; rank = 'ТИТАН'; rankClass = 'rank-titan'; }
+                if(pct >= 100) { rank = lib.legend; rankClass = 'rank-legend'; } // <--- THE NAME!
 
-                // Verify Icon
                 let verClass = ''; let verIcon = '🛡️';
                 if(d.ver === 1) { verClass = 'verify-blue'; verIcon = '📷'; }
                 if(d.ver === 2) { verClass = 'verify-gold'; verIcon = '🏆'; }
@@ -262,12 +275,40 @@
                     <div class="verify-badge ${verClass}">${verIcon}</div>
                     <div class="disc-name">${lib.name}</div>
                     <div class="disc-val">${d.val || '--'} <span style="font-size:10px;">${lib.unit}</span></div>
-                    <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct,100)}%; background:${color}"></div></div>
-                    <div class="disc-rank" style="color:${color}">${rank}</div>
+                    <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct,100)}%; background:${pct>=100 ? 'var(--legend-grad)' : color}"></div></div>
+                    <div class="disc-rank ${rankClass}">${rank}</div>
                 `;
                 c.appendChild(card);
             });
             updateWilks();
+        }
+
+        // --- LOGIC ---
+        function updateDisc(id) {
+            const d = myDisc.find(x => x.id === id);
+            const lib = library.find(l => l.id === id);
+            let a = prompt(`1. Ввести ${lib.unit}\n2. Верификация\n3. Удалить`);
+            if(a==='1') { let v = prompt('Результат:'); if(v) d.val = parseFloat(v.replace(',','.')); }
+            if(a==='2') { let l = prompt('0-Нет, 1-Видео, 2-Офиц'); if(l) d.ver = parseInt(l); }
+            if(a==='3') { if(confirm('Удалить?')) myDisc = myDisc.filter(x=>x.id!==id); }
+            renderArena();
+        }
+
+        function openAddModal() {
+            const list = document.getElementById('modal-list');
+            list.innerHTML = '';
+            library.forEach(lib => {
+                if(myDisc.find(d => d.id === lib.id)) return;
+                const div = document.createElement('div');
+                div.className = 'select-item';
+                div.innerHTML = `
+                    <div><b>${lib.name}</b> <div style="font-size:9px; opacity:0.5;">РЕКОРД: ${lib.target} ${lib.unit} (${lib.legend})</div></div>
+                    <button style="background:none; border:none; color:#34c759; font-weight:bold;">➕</button>
+                `;
+                div.onclick = () => { myDisc.push({ id: lib.id, val: 0, ver: 0 }); document.getElementById('add-modal').style.display='none'; renderArena(); };
+                list.appendChild(div);
+            });
+            document.getElementById('add-modal').style.display = 'flex';
         }
 
         function renderQuests() {
@@ -281,110 +322,24 @@
                 c.appendChild(div);
             });
         }
-
-        // --- UPDATE LOGIC ---
-
-        function updateDisc(id) {
-            const d = myDisc.find(x => x.id === id);
-            const lib = library.find(l => l.id === id);
-            
-            let action = prompt(`1. Результат (${lib.unit})\n2. Верификация\n3. Удалить`);
-            if(action === '1') {
-                let v = prompt(`Новый результат:`);
-                if(v) { d.val = parseFloat(v.replace(',','.')); renderArena(); }
-            }
-            if(action === '2') {
-                let lev = prompt(`0-Нет, 1-Видео(Blue), 2-Офиц(Gold)`);
-                if(lev) { d.ver = parseInt(lev); renderArena(); }
-            }
-            if(action === '3') {
-                if(confirm('Удалить?')) { myDisc = myDisc.filter(x => x.id !== id); renderArena(); }
-            }
-        }
-
+        function addNewQuest() { let n = prompt("Задача:"); if(n) quests.push({id:Date.now(), name:n, done:false}); renderQuests(); }
+        
         function updateWilks() {
-            const w = userData.weight;
-            let total = 0;
-            ['bench', 'squat', 'deadlift'].forEach(id => {
-                const d = myDisc.find(x => x.id === id);
-                if(d) total += d.val;
-            });
-            if(total > 0 && w > 0) {
-                // Fake formula for demo
-                let score = total * (500/w) / 5; 
-                document.getElementById('wilks-display').innerText = `WILKS: ${Math.floor(score)}`;
-            }
+            const w = userData.weight; let t = 0;
+            ['bench','squat','deadlift'].forEach(id=>{ const d=myDisc.find(x=>x.id===id); if(d) t+=d.val; });
+            if(t>0 && w>0) document.getElementById('wilks-display').innerText = `WILKS: ${Math.floor(t*(500/w)/5)}`;
         }
+        function editWeight() { let v=prompt('Вес (кг):'); if(v) { userData.weight=parseFloat(v); document.getElementById('val-weight').innerText=v+' кг'; updateWilks(); } }
+        function editAnthro(k) { let v=prompt('Значение (см):'); if(v) { userData[k]=v; document.getElementById('val-'+k).innerText=v; } }
+        function finAction(t) { let v=prompt('Сумма:'); if(v) { v=parseFloat(v); if(t==='sav') userData.sav+=v; else userData.debt-=v; document.getElementById('fin-sav').innerText=userData.sav.toFixed(2); document.getElementById('fin-debt').innerText=userData.debt.toFixed(2); } }
+        function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
+        function filterDisc(c,b) { document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderArena(c); }
+        function saveGame() { tg.HapticFeedback.notificationOccurred('success'); setTimeout(()=>{ tg.sendData(JSON.stringify({type:'save_v3_5', data:userData, disc:myDisc, quests:quests})); }, 300); }
 
-        function editWeight() {
-            let v = prompt('Вес (кг):');
-            if(v) { userData.weight = parseFloat(v.replace(',','.')); document.getElementById('val-weight').innerText = userData.weight + ' кг'; updateWilks(); }
-        }
-
-        function editAnthro(key) {
-            let v = prompt('Значение (см):');
-            if(v) { userData[key] = v; document.getElementById(`val-${key}`).innerText = v; }
-        }
-
-        function finAction(type) {
-            let v = prompt("Сумма (млн):");
-            if(v) { 
-                v = parseFloat(v.replace(',','.'));
-                if(type === 'sav') userData.sav += v;
-                if(type === 'debt') userData.debt -= v;
-                document.getElementById('fin-sav').innerText = userData.sav.toFixed(2) + ' млн';
-                document.getElementById('fin-debt').innerText = userData.debt.toFixed(2) + ' млн';
-            }
-        }
-
-        function openAddModal() {
-            const list = document.getElementById('modal-list');
-            list.innerHTML = '';
-            library.forEach(lib => {
-                if(myDisc.find(d => d.id === lib.id)) return;
-                const div = document.createElement('div');
-                div.className = 'select-item';
-                div.innerHTML = `<b>${lib.name}</b> <span style="opacity:0.5; font-size:10px;">${lib.cat.toUpperCase()}</span>`;
-                div.onclick = () => {
-                    myDisc.push({ id: lib.id, val: 0, ver: 0 });
-                    document.getElementById('add-modal').style.display='none';
-                    renderArena();
-                };
-                list.appendChild(div);
-            });
-            document.getElementById('add-modal').style.display = 'flex';
-        }
-
-        function filterDisc(cat, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderArena(cat);
-        }
-
-        function switchTab(id, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
-
-        function saveGame() {
-            tg.HapticFeedback.notificationOccurred('success');
-            setTimeout(() => { tg.sendData(JSON.stringify({type:'save_v3_4', data: userData, disc: myDisc, quests: quests})); }, 300);
-        }
-
-        function addNewQuest() {
-            let n = prompt("Новая задача:");
-            if(n) { quests.push({id: Date.now(), name: n, done: false}); renderQuests(); }
-        }
-
-        // INIT UI
         document.getElementById('val-weight').innerText = userData.weight + ' кг';
-        document.getElementById('fin-sav').innerText = userData.sav.toFixed(2) + ' млн';
-        document.getElementById('fin-debt').innerText = userData.debt.toFixed(2) + ' млн';
-        renderArena();
-        renderQuests();
-
+        document.getElementById('fin-sav').innerText = userData.sav.toFixed(2);
+        document.getElementById('fin-debt').innerText = userData.debt.toFixed(2);
+        renderArena(); renderQuests();
     </script>
 </body>
 </html>
