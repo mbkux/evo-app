@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO RPG</title>
+    <title>EVO ARENA</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -17,12 +17,14 @@
             overflow-x: hidden;
         }
 
-        /* RPG COLORS */
         :root {
             --color-body: #ff3b30;
             --color-mind: #0a84ff;
             --color-spirit: #bf5af2;
             --bg-card: #1c1c1e;
+            --gold: #ffd700;
+            --silver: #c0c0c0;
+            --bronze: #cd7f32;
         }
 
         /* NAVIGATION */
@@ -43,67 +45,54 @@
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* HEADER HERO */
+        /* HERO HEADER */
         .hero-header { display: flex; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .hero-avatar { 
-            width: 70px; height: 70px; border-radius: 50%; 
-            background: linear-gradient(135deg, #444, #111); 
-            display: flex; align-items: center; justify-content: center; font-size: 30px; border: 2px solid #fff; margin-right: 15px;
-        }
+        .hero-avatar { width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #fff; margin-right: 15px; }
         .hero-info { flex: 1; }
-        .hero-class { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
-        .hero-name { font-size: 20px; font-weight: 800; margin: 2px 0; }
-        .hero-lvl-badge { background: #333; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; display: inline-block; }
+        .hero-class { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .hero-name { font-size: 18px; font-weight: 800; }
 
-        /* SKILL BARS (RPG STYLE) */
-        .skill-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
-        .skill-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
-        .skill-title { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
-        .skill-lvl { font-size: 12px; font-weight: bold; opacity: 0.7; }
-        .xp-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; }
-        .xp-bar-fill { height: 100%; transition: width 0.5s ease; }
-        
-        .mode-body .xp-bar-fill { background: var(--color-body); box-shadow: 0 0 10px var(--color-body); }
-        .mode-mind .xp-bar-fill { background: var(--color-mind); box-shadow: 0 0 10px var(--color-mind); }
-        .mode-spirit .xp-bar-fill { background: var(--color-spirit); box-shadow: 0 0 10px var(--color-spirit); }
-
-        /* QUESTS (TASKS) */
-        .quest-item { 
-            display: flex; align-items: center; justify-content: space-between; 
-            background: #252527; padding: 12px; margin-bottom: 8px; border-radius: 12px; 
-            border-left: 4px solid #444; transition: 0.2s;
+        /* ARENA CARDS (DISCIPLINES) */
+        .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .discipline-card { 
+            background: #252527; border-radius: 16px; padding: 12px; 
+            border: 1px solid rgba(255,255,255,0.05); text-align: center;
+            position: relative; overflow: hidden;
+            transition: transform 0.2s;
         }
+        .discipline-card:active { transform: scale(0.97); }
+        .disc-icon { font-size: 24px; margin-bottom: 5px; display: block; }
+        .disc-name { font-size: 12px; font-weight: 600; opacity: 0.7; margin-bottom: 4px; }
+        .disc-val { font-size: 18px; font-weight: 800; color: #fff; }
+        .disc-rank { font-size: 10px; font-weight: bold; margin-top: 6px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        
+        .rank-rookie { color: #888; background: rgba(255,255,255,0.1); }
+        .rank-athlete { color: #fff; background: #007aff; }
+        .rank-contender { color: #fff; background: var(--bronze); }
+        .rank-master { color: #000; background: var(--silver); }
+        .rank-titan { color: #000; background: var(--gold); }
+        .rank-legend { color: #fff; background: linear-gradient(45deg, #ff0055, #00ddff); }
+
+        .disc-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .disc-fill { height: 100%; background: #34c759; width: 0%; }
+
+        /* SECTIONS */
+        .section-title { font-size: 18px; font-weight: 800; margin: 25px 0 10px 5px; display: flex; align-items: center; justify-content: space-between; }
+        .add-btn-small { background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; width: 30px; height: 30px; font-size: 18px; cursor: pointer; }
+
+        /* QUESTS */
+        .quest-item { display: flex; align-items: center; justify-content: space-between; background: #252527; padding: 12px; margin-bottom: 8px; border-radius: 12px; border-left: 4px solid #444; }
         .quest-item.done { opacity: 0.5; filter: grayscale(1); }
-        .quest-info { display: flex; flex-direction: column; }
-        .quest-name { font-weight: 600; font-size: 15px; }
-        .quest-reward { font-size: 10px; font-weight: bold; margin-top: 2px; }
+        .type-body { border-color: var(--color-body); } 
+        .type-mind { border-color: var(--color-mind); } 
+        .type-spirit { border-color: var(--color-spirit); }
+
+        /* FINANCE & STATS */
+        .stat-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .big-val { font-size: 24px; font-weight: 800; }
+        .sub-val { font-size: 12px; opacity: 0.6; }
         
-        .type-body { border-color: var(--color-body); } .type-body .quest-reward { color: var(--color-body); }
-        .type-mind { border-color: var(--color-mind); } .type-mind .quest-reward { color: var(--color-mind); }
-        .type-spirit { border-color: var(--color-spirit); } .type-spirit .quest-reward { color: var(--color-spirit); }
-
-        .quest-check {
-            width: 28px; height: 28px; border-radius: 8px; border: 2px solid #555;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.2s;
-        }
-        .quest-check.checked { background: #34c759; border-color: #34c759; }
-
-        /* STATS GRID */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--bg-card); padding: 15px; border-radius: 16px; text-align: center; }
-        .stat-val { font-size: 20px; font-weight: 800; margin-top: 5px; }
-        .stat-lbl { font-size: 11px; opacity: 0.5; text-transform: uppercase; }
-
-        /* FAB */
-        .fab-save {
-            position: fixed; bottom: 85px; right: 20px;
-            width: 56px; height: 56px; border-radius: 28px;
-            background: #fff; color: #000; border: none; font-size: 24px;
-            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 999;
-        }
+        .fab-save { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; border-radius: 28px; background: #fff; color: #000; border: none; font-size: 24px; box-shadow: 0 4px 20px rgba(255,255,255,0.2); z-index: 999; }
     </style>
 </head>
 <body>
@@ -114,73 +103,44 @@
             <div class="hero-info">
                 <div class="hero-class" id="hero-class">НОВИЧОК</div>
                 <div class="hero-name">EVO USER</div>
-                <div class="hero-lvl-badge" id="total-lvl">LVL 1</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size:24px; font-weight:800;" id="total-lvl">1</div>
+                <div style="font-size:10px; opacity:0.5;">LEVEL</div>
             </div>
         </div>
 
-        <div class="skill-card mode-body">
-            <div class="skill-header">
-                <span class="skill-title" style="color:var(--color-body)">🔴 ТЕЛО (Сила)</span>
-                <span class="skill-lvl" id="lvl-body">Lvl 1</span>
+        <div class="section-title">⚡ Задачи дня <button class="add-btn-small" onclick="addNewQuest()">+</button></div>
+        <div id="quests-container"></div>
+    </div>
+
+    <div id="tab-body" class="tab-content">
+        <div class="section-title">🧬 Био-Паспорт</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="stat-card" onclick="editStat('weight')">
+                <div><div class="sub-val">Вес</div><div class="big-val" id="val-weight">--</div></div>
+                <div>⚖️</div>
             </div>
-            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-body" style="width: 0%"></div></div>
+            <div class="stat-card" onclick="editStat('fat')">
+                <div><div class="sub-val">Жир</div><div class="big-val" id="val-fat" style="color:#ff3b30">--</div></div>
+                <div>🩸</div>
+            </div>
         </div>
         
-        <div class="skill-card mode-mind">
-            <div class="skill-header">
-                <span class="skill-title" style="color:var(--color-mind)">🔵 РАЗУМ (Интеллект)</span>
-                <span class="skill-lvl" id="lvl-mind">Lvl 1</span>
-            </div>
-            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-mind" style="width: 0%"></div></div>
-        </div>
-
-        <div class="skill-card mode-spirit">
-            <div class="skill-header">
-                <span class="skill-title" style="color:var(--color-spirit)">🟣 ДУХ (Дисциплина)</span>
-                <span class="skill-lvl" id="lvl-spirit">Lvl 1</span>
-            </div>
-            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-spirit" style="width: 0%"></div></div>
-        </div>
-
-        <h3 style="margin-top:25px; margin-bottom:10px; font-size:16px;">⚡ Ежедневные Квесты</h3>
-        <div id="quests-container"></div>
-        <button onclick="addNewQuest()" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px dashed #555; color:#888; border-radius:12px; margin-top:10px;">+ Добавить квест</button>
+        <div class="section-title">🏆 Арена (Рекорды)</div>
+        <div style="font-size:12px; opacity:0.5; margin-bottom:10px; padding-left:5px;">Нажми на карточку, чтобы внести новый результат (PB).</div>
+        <div class="arena-grid" id="arena-container"></div>
     </div>
 
-    <div id="tab-health" class="tab-content">
-        <h2 style="margin:0 0 20px 0;">Мониторинг</h2>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-lbl">Вес</div>
-                <div class="stat-val" id="val-weight" onclick="editWeight()">--</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-lbl">Жир</div>
-                <div class="stat-val" id="val-fat" style="color:#ff3b30;">--%</div>
-            </div>
+    <div id="tab-fin" class="tab-content">
+        <div class="section-title">💰 Казна</div>
+        <div class="stat-card">
+            <div><div class="sub-val">Накопления</div><div class="big-val" style="color:#30d158" id="fin-sav">--</div></div>
+            <button onclick="finAction('sav')" style="background:#30d158; border:none; border-radius:8px; width:40px; height:40px; font-weight:bold;">+</button>
         </div>
-        <div class="skill-card">
-            <div class="skill-header"><span class="skill-title">📉 График Веса</span></div>
-            <div style="height:200px; width:100%;"><canvas id="weightChart"></canvas></div>
-        </div>
-        <div class="skill-card">
-            <div class="skill-header"><span class="skill-title">😴 Сон (ч)</span></div>
-            <input type="range" min="0" max="12" step="0.5" id="sleep-slider" style="width:100%; margin-top:10px;" oninput="updateSleepUI(this.value)">
-            <div style="text-align:center; font-weight:bold; font-size:24px; margin-top:10px;" id="sleep-val">7.0</div>
-        </div>
-    </div>
-
-    <div id="tab-finance" class="tab-content">
-        <h2 style="margin:0 0 20px 0;">Ресурсы</h2>
-        <div class="skill-card">
-            <div class="skill-header"><span class="skill-title" style="color:#30d158">💰 Казна (Накопления)</span></div>
-            <div class="stat-val" id="fin-sav" style="font-size:28px;">--</div>
-            <button onclick="finAction('sav')" style="width:100%; padding:12px; background:#30d158; border:none; border-radius:8px; color:#000; font-weight:bold; margin-top:10px;">Пополнить</button>
-        </div>
-        <div class="skill-card">
-            <div class="skill-header"><span class="skill-title" style="color:#ff453a">💸 Долг</span></div>
-            <div class="stat-val" id="fin-debt" style="font-size:28px;">--</div>
-            <button onclick="finAction('debt')" style="width:100%; padding:12px; background:#ff453a; border:none; border-radius:8px; color:#fff; font-weight:bold; margin-top:10px;">Погасить</button>
+        <div class="stat-card">
+            <div><div class="sub-val">Долг</div><div class="big-val" style="color:#ff453a" id="fin-debt">--</div></div>
+            <button onclick="finAction('debt')" style="background:#ff453a; border:none; border-radius:8px; width:40px; height:40px; color:#fff; font-weight:bold;">📉</button>
         </div>
     </div>
 
@@ -188,178 +148,154 @@
 
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🛡️</div><div class="nav-label">Герой</div></div>
-        <div class="nav-item" onclick="switchTab('tab-health', this)"><div class="nav-icon">❤️</div><div class="nav-label">Тело</div></div>
-        <div class="nav-item" onclick="switchTab('tab-finance', this)"><div class="nav-icon">💰</div><div class="nav-label">Золото</div></div>
+        <div class="nav-item" onclick="switchTab('tab-body', this)"><div class="nav-icon">💪</div><div class="nav-label">Тело</div></div>
+        <div class="nav-item" onclick="switchTab('tab-fin', this)"><div class="nav-icon">💰</div><div class="nav-label">Казна</div></div>
     </nav>
 
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
 
-        // --- RPG SYSTEM ---
-        // Имитация данных (в будущем придут из URL или базы)
-        let rpg = {
-            body: { lvl: 1, xp: 0, max: 100 },
-            mind: { lvl: 1, xp: 0, max: 100 },
-            spirit: { lvl: 1, xp: 0, max: 100 }
+        // --- ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ---
+        let userData = {
+            weight: params.get('w') || '109.6',
+            fat: params.get('fat') || '31.8',
+            debt: 4.7,
+            sav: 0.0,
+            xp: { body: 0, mind: 0, spirit: 0 }
         };
 
-        // Дефолтные квесты
-        let quests = [
-            { id: 1, name: "Силовая Тренировка", type: "body", xp: 50, done: false },
-            { id: 2, name: "10.000 шагов", type: "body", xp: 30, done: false },
-            { id: 3, name: "Чтение (20 стр)", type: "mind", xp: 40, done: false },
-            { id: 4, name: "Английский (Урок)", type: "mind", xp: 30, done: false },
-            { id: 5, name: "Медитация / Тишина", type: "spirit", xp: 20, done: false },
-            { id: 6, name: "Ранний подъем (до 08:00)", type: "spirit", xp: 50, done: false }
+        // --- ARENA SYSTEM (ДИСЦИПЛИНЫ) ---
+        // type: 'max' (чем больше тем лучше) или 'min' (чем меньше тем лучше, для бега)
+        // target: Элитный норматив (Titan level)
+        let disciplines = [
+            { id: 'bench', name: 'Жим лежа', icon: '🏋️‍♂️', unit: 'кг', val: 0, target: 150, type: 'max' },
+            { id: 'squat', name: 'Присед', icon: '🦵', unit: 'кг', val: 0, target: 180, type: 'max' },
+            { id: 'pullup', name: 'Подтягивания', icon: '🦾', unit: 'раз', val: 0, target: 30, type: 'max' },
+            { id: 'run5k', name: 'Бег 5км', icon: '🏃', unit: 'мин', val: 0, target: 20, type: 'min' }, // target 20 mins
+            { id: 'plank', name: 'Планка', icon: '🪵', unit: 'сек', val: 0, target: 300, type: 'max' }
         ];
 
-        // Загрузка сохраненных (если есть в URL) - упрощенно
-        const savedQuests = params.get('q'); 
-        if(savedQuests) {
-            // Тут была бы логика парсинга "101010", но для MVP оставим дефолт
+        // Загрузка сохраненных дисциплин (фейковая)
+        // В реальности парсили бы JSON из params
+        
+        function getRank(pct) {
+            if (pct >= 100) return { t: 'ЛЕГЕНДА', c: 'rank-legend' };
+            if (pct >= 80) return { t: 'ТИТАН', c: 'rank-titan' };
+            if (pct >= 60) return { t: 'МАСТЕР', c: 'rank-master' };
+            if (pct >= 40) return { t: 'ПРЕТЕНДЕНТ', c: 'rank-contender' };
+            if (pct >= 20) return { t: 'АТЛЕТ', c: 'rank-athlete' };
+            return { t: 'НОВИЧОК', c: 'rank-rookie' };
         }
 
-        function renderRPG() {
-            // Отрисовка баров
-            ['body', 'mind', 'spirit'].forEach(type => {
-                const stat = rpg[type];
-                const pct = (stat.xp / stat.max) * 100;
-                document.getElementById(`lvl-${type}`).innerText = `Lvl ${stat.lvl}`;
-                document.getElementById(`bar-${type}`).style.width = `${pct}%`;
+        function renderArena() {
+            const c = document.getElementById('arena-container');
+            c.innerHTML = '';
+            disciplines.forEach(d => {
+                // Расчет процента
+                let pct = 0;
+                if (d.val > 0) {
+                    if (d.type === 'max') pct = (d.val / d.target) * 100;
+                    else pct = (d.target / d.val) * 100; // Для бега: Target(20) / Val(25) = 80%
+                    // Коррекция для бега, если бежал очень долго
+                    if(d.type === 'min' && d.val > d.target * 3) pct = 5; 
+                }
+                
+                const rank = getRank(pct);
+                
+                const card = document.createElement('div');
+                card.className = 'discipline-card';
+                card.onclick = () => updateDiscipline(d.id);
+                card.innerHTML = `
+                    <span class="disc-icon">${d.icon}</span>
+                    <div class="disc-name">${d.name}</div>
+                    <div class="disc-val">${d.val > 0 ? d.val : '--'} <span style="font-size:10px; font-weight:normal;">${d.unit}</span></div>
+                    <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct, 100)}%; background:${getColor(pct)}"></div></div>
+                    <div class="disc-rank ${rank.c}">${rank.t}</div>
+                `;
+                c.appendChild(card);
             });
-
-            // Общий уровень
-            const totalLvl = rpg.body.lvl + rpg.mind.lvl + rpg.spirit.lvl;
-            document.getElementById('total-lvl').innerText = `LVL ${totalLvl}`;
-
-            // Класс героя
-            let mainStat = 'body';
-            if (rpg.mind.lvl > rpg.body.lvl && rpg.mind.lvl > rpg.spirit.lvl) mainStat = 'mind';
-            if (rpg.spirit.lvl > rpg.body.lvl && rpg.spirit.lvl > rpg.mind.lvl) mainStat = 'spirit';
-            
-            const titles = {
-                body: "АТЛЕТ",
-                mind: "СТРАТЕГ",
-                spirit: "МОНАХ"
-            };
-            // Если все равны
-            if (rpg.body.lvl === rpg.mind.lvl && rpg.body.lvl === rpg.spirit.lvl) document.getElementById('hero-class').innerText = "НОВИЧОК";
-            else document.getElementById('hero-class').innerText = titles[mainStat];
-
-            renderQuests();
         }
+
+        function getColor(pct) {
+            if(pct>=100) return '#00ddff';
+            if(pct>=80) return '#ffd700';
+            if(pct>=60) return '#c0c0c0';
+            if(pct>=40) return '#cd7f32';
+            if(pct>=20) return '#007aff';
+            return '#555';
+        }
+
+        function updateDiscipline(id) {
+            const d = disciplines.find(x => x.id === id);
+            let p = prompt(`Твой новый рекорд в "${d.name}" (${d.unit}):`, d.val || '');
+            if (p) {
+                p = parseFloat(p.replace(',','.'));
+                if (!isNaN(p)) {
+                    d.val = p;
+                    tg.HapticFeedback.notificationOccurred('success');
+                    if (d.type === 'max' && p >= d.target) confetti();
+                    renderArena();
+                }
+            }
+        }
+
+        // --- QUESTS ---
+        let quests = [
+            { id: 1, name: "Силовая тренировка", type: "body", done: false },
+            { id: 2, name: "Чтение (20 стр)", type: "mind", done: false },
+            { id: 3, name: "Режим (Сон до 00:00)", type: "spirit", done: false }
+        ];
 
         function renderQuests() {
             const c = document.getElementById('quests-container');
             c.innerHTML = '';
             quests.forEach((q, idx) => {
-                const div = document.createElement('div');
-                div.className = `quest-item type-${q.type} ${q.done ? 'done' : ''}`;
-                div.innerHTML = `
-                    <div class="quest-info">
-                        <div class="quest-name">${q.name}</div>
-                        <div class="quest-reward">+${q.xp} XP (${translateType(q.type)})</div>
-                    </div>
-                    <div class="quest-check ${q.done ? 'checked' : ''}" onclick="toggleQuest(${idx})">
-                        ${q.done ? '✔' : ''}
-                    </div>
-                `;
-                c.appendChild(div);
+                const d = document.createElement('div');
+                d.className = `quest-item type-${q.type} ${q.done ? 'done' : ''}`;
+                d.onclick = () => toggleQuest(idx);
+                d.innerHTML = `<div>${q.name}</div><div>${q.done ? '✅' : '⭕'}</div>`;
+                c.appendChild(d);
             });
         }
 
-        function translateType(t) {
-            if(t==='body') return 'Тело';
-            if(t==='mind') return 'Разум';
-            return 'Дух';
-        }
-
         function toggleQuest(idx) {
-            const q = quests[idx];
-            if (!q.done) {
-                // Выполнение
-                q.done = true;
-                addXP(q.type, q.xp);
-                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
-                tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                // Отмена
-                q.done = false;
-                removeXP(q.type, q.xp);
-                tg.HapticFeedback.impactOccurred('light');
-            }
-            renderRPG();
+            quests[idx].done = !quests[idx].done;
+            tg.HapticFeedback.selectionChanged();
+            renderQuests();
         }
-
-        function addXP(type, amount) {
-            const s = rpg[type];
-            s.xp += amount;
-            if (s.xp >= s.max) {
-                s.xp = s.xp - s.max;
-                s.lvl++;
-                s.max = Math.floor(s.max * 1.2); // Сложнее качать
-                alert(`🆙 LEVEL UP! Твоя характеристика ${translateType(type)} повышена!`);
-            }
-        }
-        function removeXP(type, amount) {
-            const s = rpg[type];
-            s.xp -= amount;
-            if (s.xp < 0) {
-                if (s.lvl > 1) { s.lvl--; s.max = Math.floor(s.max / 1.2); s.xp = s.max + s.xp; } 
-                else { s.xp = 0; }
-            }
-        }
-
         function addNewQuest() {
-            const name = prompt("Название квеста:");
-            if(!name) return;
-            const typeStr = prompt("Тип (1-Тело, 2-Разум, 3-Дух):");
-            let type = 'body';
-            if(typeStr === '2') type = 'mind';
-            if(typeStr === '3') type = 'spirit';
-            quests.push({ id: Date.now(), name: name, type: type, xp: 30, done: false });
-            renderRPG();
+            const n = prompt("Задача:");
+            if(n) { quests.push({id: Date.now(), name:n, type:'body', done:false}); renderQuests(); }
         }
 
-        // --- FINANCE & HEALTH LOGIC (SIMPLIFIED) ---
-        let weight = params.get('w') || '109.6';
-        document.getElementById('val-weight').innerText = weight + ' кг';
-        document.getElementById('val-fat').innerText = (params.get('fat') || '31.8') + '%';
-
-        let debt = 4.7; // млн
-        let sav = 0.0;
-        function updateFinUI() {
-            document.getElementById('fin-debt').innerText = debt.toFixed(2) + ' млн';
-            document.getElementById('fin-sav').innerText = sav.toFixed(2) + ' млн';
+        // --- UI UPDATES ---
+        document.getElementById('val-weight').innerText = userData.weight + ' кг';
+        document.getElementById('val-fat').innerText = userData.fat + '%';
+        
+        function updateFin() {
+            document.getElementById('fin-sav').innerText = userData.sav.toFixed(2) + ' млн';
+            document.getElementById('fin-debt').innerText = userData.debt.toFixed(2) + ' млн';
         }
-        updateFinUI();
+        updateFin();
 
         function finAction(type) {
-            let val = prompt("Сумма (млн):");
-            if(val) {
-                if(type === 'sav') sav += parseFloat(val);
-                if(type === 'debt') debt -= parseFloat(val);
-                updateFinUI();
+            let v = prompt("Сумма (млн):");
+            if(v) {
+                v = parseFloat(v.replace(',','.'));
+                if(type==='sav') userData.sav += v;
+                if(type==='debt') userData.debt -= v;
+                updateFin();
+            }
+        }
+        function editStat(type) {
+            let v = prompt("Новое значение:");
+            if(v) { 
+                if(type==='weight') { userData.weight = v; document.getElementById('val-weight').innerText = v + ' кг'; }
+                if(type==='fat') { userData.fat = v; document.getElementById('val-fat').innerText = v + '%'; }
             }
         }
 
-        function editWeight() {
-            let w = prompt("Новый вес:");
-            if(w) { weight = w; document.getElementById('val-weight').innerText = w + ' кг'; }
-        }
-
-        function updateSleepUI(val) { document.getElementById('sleep-val').innerText = val; }
-
-        // --- CHART ---
-        const ctx = document.getElementById('weightChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: { labels: ['10.02', '12.02', '14.02', '16.02', '18.02'], datasets: [{ data: [113, 112, 111, 110.5, 109.6], borderColor: '#ff3b30', tension: 0.3 }] },
-            options: { plugins: { legend: {display:false} }, scales: { x: {display:false}, y: {display:true, position:'right', grid:{color:'#333'}} } }
-        });
-
-        // --- TABS ---
         function switchTab(id, el) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
@@ -367,23 +303,23 @@
             el.classList.add('active');
         }
 
-        // --- SAVE ---
         function saveGame() {
             tg.HapticFeedback.notificationOccurred('success');
-            // Собираем данные для бота (в JSON)
             const data = {
-                type: 'save_rpg',
-                rpg_state: rpg,
-                quests: quests.map(q => ({n: q.name, t: q.type, d: q.done})), // Сохраняем состояние квестов
-                weight: weight,
-                debt: debt,
-                savings: sav
+                type: 'save_arena',
+                disciplines: disciplines.map(d => ({id:d.id, val:d.val})),
+                weight: userData.weight,
+                fat: userData.fat,
+                debt: userData.debt,
+                sav: userData.sav
             };
-            // В реальном боте тут отправка
             setTimeout(() => { tg.sendData(JSON.stringify(data)); }, 300);
         }
 
-        renderRPG();
+        // INIT
+        renderArena();
+        renderQuests();
+
     </script>
 </body>
 </html>
