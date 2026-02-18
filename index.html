@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO ULTIMATE v3.6</title>
+    <title>EVO UNITS v3.7</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -26,7 +26,7 @@
             --legend-grad: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
         }
 
-        /* NAVIGATION & TABS */
+        /* NAVIGATION */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: 65px; background: rgba(28, 28, 30, 0.95);
@@ -58,7 +58,7 @@
         }
         .wilks-badge { font-size: 14px; color: var(--gold); font-weight: 800; border: 1px solid var(--gold); padding: 4px 8px; border-radius: 6px; }
 
-        /* FILTERS & SCROLLS */
+        /* SCROLLS */
         .anthro-scroll, .filter-scroll { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 15px; scrollbar-width: none; padding-bottom: 5px; }
         .anthro-card { min-width: 80px; background: #252527; border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
         .anthro-val { font-size: 16px; font-weight: 800; margin-top: 5px; }
@@ -67,7 +67,7 @@
         .filter-btn { background: rgba(255,255,255,0.1); border: none; padding: 8px 16px; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap; }
         .filter-btn.active { background: #fff; color: #000; }
 
-        /* ARENA CARDS */
+        /* ARENA GRID */
         .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .discipline-card { 
             background: #252527; border-radius: 16px; padding: 12px; 
@@ -162,8 +162,8 @@
 
     <div class="modal-overlay" id="add-modal">
         <div class="modal-card">
-            <h3 style="margin-top:0; text-align:center;">Энциклопедия Рекордов</h3>
-            <input type="text" id="search-input" placeholder="Поиск дисциплины..." onkeyup="searchLib()" style="width:100%; padding:10px; background:#333; border:none; border-radius:8px; color:#fff; margin-bottom:10px;">
+            <h3 style="margin-top:0; text-align:center;">Энциклопедия</h3>
+            <input type="text" id="search-input" placeholder="Поиск..." onkeyup="searchLib()" style="width:100%; padding:10px; background:#333; border:none; border-radius:8px; color:#fff; margin-bottom:10px;">
             <div id="modal-list"></div>
             <button onclick="document.getElementById('add-modal').style.display='none'" style="width:100%; padding:12px; margin-top:10px; background:#333; border:none; color:#fff; border-radius:12px;">Закрыть</button>
         </div>
@@ -187,20 +187,20 @@
             debt: 4.7, sav: 0.0
         };
 
-        // --- THE ULTIMATE LIBRARY (50+ DISCIPLINES) ---
+        // --- LIBRARY WITH UNITS IN DISPLAY ---
         const library = [
-            // --- 1. RUNNING (IAAF) ---
+            // RUNNING
             { id: 'run100', name: 'Бег 100м', cat: 'run', unit: 'сек', target: 9.58, type: 'min', legend: 'BOLT' },
             { id: 'run200', name: 'Бег 200м', cat: 'run', unit: 'сек', target: 19.19, type: 'min', legend: 'BOLT' },
             { id: 'run400', name: 'Бег 400м', cat: 'run', unit: 'сек', target: 43.03, type: 'min', legend: 'VAN NIEKERK' },
-            { id: 'run800', name: 'Бег 800м', cat: 'run', unit: 'мин', target: 1.40, type: 'min', legend: 'RUDISHA' }, // 1:40.91
+            { id: 'run800', name: 'Бег 800м', cat: 'run', unit: 'мин', target: 1.40, type: 'min', legend: 'RUDISHA' }, 
             { id: 'run1k', name: 'Бег 1 км', cat: 'run', unit: 'мин', target: 2.11, type: 'min', legend: 'NGE' },
             { id: 'run5k', name: 'Бег 5 км', cat: 'run', unit: 'мин', target: 12.35, type: 'min', legend: 'CHEPTEGEI' },
             { id: 'run10k', name: 'Бег 10 км', cat: 'run', unit: 'мин', target: 26.11, type: 'min', legend: 'CHEPTEGEI' },
             { id: 'halfmarathon', name: 'Полумарафон', cat: 'run', unit: 'ч', target: 0.57, type: 'min', legend: 'KIPLIMO' },
             { id: 'marathon', name: 'Марафон', cat: 'run', unit: 'ч', target: 2.00, type: 'min', legend: 'KIPTUM' },
 
-            // --- 2. POWERLIFTING & WEIGHTLIFTING (IPF/IWF) ---
+            // POWERLIFTING
             { id: 'bench', name: 'Жим лежа', cat: 'power', unit: 'кг', target: 355, type: 'max', legend: 'MADDOX' },
             { id: 'squat', name: 'Присед (Raw)', cat: 'power', unit: 'кг', target: 490, type: 'max', legend: 'RAY WILLIAMS' },
             { id: 'deadlift', name: 'Становая', cat: 'power', unit: 'кг', target: 501, type: 'max', legend: 'THOR' },
@@ -208,21 +208,21 @@
             { id: 'snatch', name: 'Рывок', cat: 'power', unit: 'кг', target: 225, type: 'max', legend: 'LASHA' },
             { id: 'clean', name: 'Толчок', cat: 'power', unit: 'кг', target: 267, type: 'max', legend: 'LASHA' },
 
-            // --- 3. GYM & BODYBUILDING ---
+            // GYM
             { id: 'legpress', name: 'Жим ногами', cat: 'gym', unit: 'кг', target: 1040, type: 'max', legend: 'COLEMAN' },
             { id: 'biceps', name: 'Бицепс (Strict)', cat: 'gym', unit: 'кг', target: 113, type: 'max', legend: 'CYPLENKOV' },
-            { id: 'dumb_bench', name: 'Жим гантелей', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'EDDIE HALL' }, // Total weight
+            { id: 'dumb_bench', name: 'Жим гантелей', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'EDDIE HALL' },
             { id: 'row', name: 'Тяга в наклоне', cat: 'gym', unit: 'кг', target: 200, type: 'max', legend: 'YATES' },
-            { id: 'farmers', name: 'Прогулка фермера', cat: 'gym', unit: 'кг', target: 300, type: 'max', legend: 'NOVICOV' }, // weight in hands
+            { id: 'farmers', name: 'Прогулка фермера', cat: 'gym', unit: 'кг', target: 300, type: 'max', legend: 'NOVICOV' },
 
-            // --- 4. CALISTHENICS & ENDURANCE ---
-            { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 105, type: 'max', legend: 'SEKI' }, // Max reps in one go
-            { id: 'dips', name: 'Брусья (вес)', cat: 'cali', unit: 'кг', target: 195, type: 'max', legend: 'ZLAT' }, // +195kg
-            { id: 'pushups', name: 'Отжимания', cat: 'cali', unit: 'раз', target: 300, type: 'max', legend: 'LEGEND' }, // World record is 10k, but 300 is insane realistic goal
-            { id: 'plank', name: 'Планка', cat: 'cali', unit: 'мин', target: 540, type: 'max', legend: 'SCALI' }, // 9 hours
+            // CALISTHENICS
+            { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 105, type: 'max', legend: 'SEKI' },
+            { id: 'dips', name: 'Брусья (вес)', cat: 'cali', unit: 'кг', target: 195, type: 'max', legend: 'ZLAT' },
+            { id: 'pushups', name: 'Отжимания', cat: 'cali', unit: 'раз', target: 300, type: 'max', legend: 'LEGEND' },
+            { id: 'plank', name: 'Планка', cat: 'cali', unit: 'мин', target: 540, type: 'max', legend: 'SCALI' },
             { id: 'burpee', name: 'Бёрпи (1 мин)', cat: 'cali', unit: 'раз', target: 48, type: 'max', legend: 'CROSSFIT' },
             
-            // --- 5. SWIMMING (FINA 50m) ---
+            // SWIMMING
             { id: 'swim50', name: 'Плавание 50м', cat: 'swim', unit: 'сек', target: 20.91, type: 'min', legend: 'CIELO' },
             { id: 'swim100', name: 'Плавание 100м', cat: 'swim', unit: 'сек', target: 46.80, type: 'min', legend: 'PAN ZHANLE' },
             { id: 'swim1500', name: 'Плавание 1.5км', cat: 'swim', unit: 'мин', target: 14.31, type: 'min', legend: 'SUN YANG' }
@@ -231,7 +231,6 @@
         let myDisc = [];
         let quests = [{ id: 1, name: "Тренировка", done: false }];
 
-        // --- RENDER LOGIC ---
         function renderArena(filter = 'all') {
             const c = document.getElementById('arena-container');
             c.innerHTML = '';
@@ -270,24 +269,7 @@
             updateWilks();
         }
 
-        // --- CORE FUNCTIONS ---
-        function updateDisc(id) {
-            const d = myDisc.find(x => x.id === id);
-            const lib = library.find(l => l.id === id);
-            let action = prompt(`1. Результат (${lib.unit})\n2. Верификация\n3. Удалить`);
-            if(action === '1') {
-                let v = prompt(`Новый результат:`);
-                if(v) { d.val = parseFloat(v.replace(',','.')); renderArena(); }
-            }
-            if(action === '2') {
-                let l = prompt(`0-Нет, 1-Видео, 2-Офиц`);
-                if(l) { d.ver = parseInt(l); renderArena(); }
-            }
-            if(action === '3') {
-                if(confirm('Убрать?')) myDisc = myDisc.filter(x => x.id !== id); renderArena();
-            }
-        }
-
+        // --- UPDATED SEARCH WITH UNITS ---
         function searchLib() {
             const val = document.getElementById('search-input').value.toLowerCase();
             const list = document.getElementById('modal-list');
@@ -299,7 +281,12 @@
                 const div = document.createElement('div');
                 div.className = 'select-item';
                 div.innerHTML = `
-                    <div><b>${lib.name}</b> <div style="font-size:10px; opacity:0.5;">REC: ${lib.target} (${lib.legend})</div></div>
+                    <div>
+                        <b>${lib.name}</b>
+                        <div style="font-size:10px; opacity:0.5;">
+                            🏆 REC: ${lib.target} ${lib.unit} (${lib.legend})
+                        </div>
+                    </div>
                     <button style="background:none; border:none; color:#34c759; font-weight:bold; font-size:20px;">+</button>
                 `;
                 div.onclick = () => {
@@ -311,20 +298,37 @@
             });
         }
 
+        function updateDisc(id) {
+            const d = myDisc.find(x => x.id === id);
+            const lib = library.find(l => l.id === id);
+            let action = prompt(`1. Результат (${lib.unit})\n2. Верификация\n3. Удалить`);
+            if(action === '1') {
+                let v = prompt(`Новый результат (${lib.unit}):`);
+                if(v) { d.val = parseFloat(v.replace(',','.')); renderArena(); }
+            }
+            if(action === '2') {
+                let l = prompt(`0-Нет, 1-Видео, 2-Офиц`);
+                if(l) { d.ver = parseInt(l); renderArena(); }
+            }
+            if(action === '3') {
+                if(confirm('Убрать?')) myDisc = myDisc.filter(x => x.id !== id); renderArena();
+            }
+        }
+
         function updateWilks() {
             const w = userData.weight; let total = 0;
             ['bench','squat','deadlift'].forEach(id => { const d = myDisc.find(x=>x.id===id); if(d) total += d.val; });
             if(total > 0 && w > 0) document.getElementById('wilks-display').innerText = `WILKS: ${Math.floor(total * (500/w) / 5)}`;
         }
 
-        // --- GENERIC UI ---
+        // GENERIC
         function openAddModal() { document.getElementById('search-input').value=''; searchLib(); document.getElementById('add-modal').style.display='flex'; }
         function editWeight() { let v=prompt('Вес (кг):'); if(v) { userData.weight=parseFloat(v); document.getElementById('val-weight').innerText=v+' кг'; updateWilks(); } }
         function editAnthro(k) { let v=prompt('Значение (см):'); if(v) { userData[k]=v; document.getElementById('val-'+k).innerText=v; } }
         function finAction(t) { let v=prompt('Сумма:'); if(v) { v=parseFloat(v); if(t==='sav') userData.sav+=v; else userData.debt-=v; document.getElementById('fin-sav').innerText=userData.sav.toFixed(2); document.getElementById('fin-debt').innerText=userData.debt.toFixed(2); } }
         function switchTab(id, el) { document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active')); document.getElementById(id).classList.add('active'); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
         function filterDisc(c,b) { document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderArena(c); }
-        function saveGame() { tg.HapticFeedback.notificationOccurred('success'); setTimeout(()=>{ tg.sendData(JSON.stringify({type:'save_v3_6', data:userData, disc:myDisc, quests:quests})); }, 300); }
+        function saveGame() { tg.HapticFeedback.notificationOccurred('success'); setTimeout(()=>{ tg.sendData(JSON.stringify({type:'save_v3_7', data:userData, disc:myDisc, quests:quests})); }, 300); }
         function renderQuests() { const c = document.getElementById('quests-container'); c.innerHTML = ''; quests.forEach(q => { const div = document.createElement('div'); div.className = `quest-item ${q.done?'done':''}`; div.onclick = () => { q.done=!q.done; renderQuests(); }; div.innerHTML = `<div>${q.name}</div><div>${q.done?'✅':'⭕'}</div>`; c.appendChild(div); }); }
         function addNewQuest() { let n = prompt("Задача:"); if(n) quests.push({id:Date.now(), name:n, done:false}); renderQuests(); }
 
