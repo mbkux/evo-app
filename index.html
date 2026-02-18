@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO ARENA v3.2</title>
+    <title>EVO OLYMPIA v3.3</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -18,14 +17,15 @@
         }
 
         :root {
-            --color-body: #ff3b30;
+            --color-primary: #34c759;
             --bg-card: #1c1c1e;
             --gold: #ffd700;
-            --silver: #c0c0c0;
+            --silver: #e0e0e0;
             --bronze: #cd7f32;
+            --blue-check: #3897f0;
         }
 
-        /* NAVIGATION */
+        /* TABS */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: 65px; background: rgba(28, 28, 30, 0.95);
@@ -43,345 +43,315 @@
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
-        /* HERO HEADER */
-        .hero-header { display: flex; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        /* HERO HEADER with WILKS */
+        .hero-header { 
+            display: flex; align-items: center; margin-bottom: 20px; 
+            background: linear-gradient(135deg, #1c1c1e, #2c2c2e); 
+            padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); 
+        }
         .hero-avatar { width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #fff; margin-right: 15px; }
         .hero-info { flex: 1; }
         .hero-name { font-size: 18px; font-weight: 800; }
-        .hero-lvl-badge { background: #333; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; display: inline-block; margin-top: 4px; }
+        .wilks-score { font-size: 11px; color: var(--gold); font-weight: bold; margin-top: 4px; border: 1px solid var(--gold); padding: 2px 6px; border-radius: 6px; display: inline-block; }
 
-        /* ARENA CARDS */
-        .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        /* ANTHROPOMETRY (MEASUREMENTS) */
+        .anthro-scroll {
+            display: flex; overflow-x: auto; gap: 10px; margin-bottom: 20px; padding-bottom: 5px;
+            scrollbar-width: none;
+        }
+        .anthro-scroll::-webkit-scrollbar { display: none; }
+        .anthro-card {
+            min-width: 80px; background: #252527; border-radius: 12px; padding: 10px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .anthro-val { font-size: 16px; font-weight: 800; margin-top: 5px; }
+        .anthro-lbl { font-size: 10px; opacity: 0.5; }
+
+        /* FILTERS */
+        .filter-scroll { display: flex; overflow-x: auto; gap: 8px; margin-bottom: 15px; scrollbar-width: none; }
+        .filter-btn {
+            background: rgba(255,255,255,0.1); border: none; padding: 8px 16px; 
+            border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; white-space: nowrap;
+        }
+        .filter-btn.active { background: #fff; color: #000; }
+
+        /* DISCIPLINES & VERIFICATION */
+        .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .discipline-card { 
             background: #252527; border-radius: 16px; padding: 12px; 
             border: 1px solid rgba(255,255,255,0.05); text-align: center;
-            position: relative; overflow: hidden; transition: transform 0.2s;
+            position: relative; overflow: hidden; transition: transform 0.1s;
         }
-        .discipline-card:active { transform: scale(0.97); }
+        .discipline-card:active { transform: scale(0.98); }
+        
+        /* Verification Badges */
+        .verify-badge {
+            position: absolute; top: 6px; right: 6px; font-size: 14px;
+            width: 20px; height: 20px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.1); color: #555; /* Default Grey */
+        }
+        .verify-blue { background: var(--blue-check); color: #fff; box-shadow: 0 0 5px var(--blue-check); }
+        .verify-gold { background: var(--gold); color: #000; box-shadow: 0 0 8px var(--gold); }
+
         .disc-icon { font-size: 24px; margin-bottom: 5px; display: block; }
-        .disc-name { font-size: 12px; font-weight: 600; opacity: 0.7; margin-bottom: 4px; }
+        .disc-name { font-size: 11px; font-weight: 600; opacity: 0.7; margin-bottom: 4px; }
         .disc-val { font-size: 18px; font-weight: 800; color: #fff; }
-        .disc-rank { font-size: 10px; font-weight: bold; margin-top: 6px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
+        .disc-rank { font-size: 9px; font-weight: bold; margin-top: 6px; padding: 2px 6px; border-radius: 4px; display: inline-block; }
         
         .rank-rookie { color: #888; background: rgba(255,255,255,0.1); }
         .rank-athlete { color: #fff; background: #007aff; }
-        .rank-contender { color: #fff; background: var(--bronze); }
         .rank-master { color: #000; background: var(--silver); }
         .rank-titan { color: #000; background: var(--gold); }
-        .rank-legend { color: #fff; background: linear-gradient(45deg, #ff0055, #00ddff); }
 
-        .disc-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .disc-progress { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
         .disc-fill { height: 100%; background: #34c759; width: 0%; }
         
-        /* DELETE BUTTON ON CARD */
-        .delete-disc-btn {
-            position: absolute; top: 5px; right: 5px; width: 20px; height: 20px;
-            background: rgba(0,0,0,0.5); color: #ff3b30; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 12px;
-            border: none; cursor: pointer; opacity: 0.6;
-        }
-
-        /* ADD BUTTON */
-        .add-disc-btn {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px dashed #555;
-            color: #888; border-radius: 12px; margin-top: 15px; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
-        }
-
         /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
             z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;
         }
         .modal-card {
             background: #1c1c1e; width: 100%; max-width: 350px; border-radius: 20px;
             padding: 20px; border: 1px solid rgba(255,255,255,0.1); max-height: 80vh; overflow-y: auto;
         }
-        .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; text-align: center; }
         .select-item {
             display: flex; align-items: center; gap: 10px; padding: 12px;
-            background: #2c2c2e; margin-bottom: 8px; border-radius: 12px;
-            cursor: pointer; transition: 0.2s;
+            background: #2c2c2e; margin-bottom: 8px; border-radius: 12px; cursor: pointer;
         }
         .select-item:active { background: #3a3a3c; }
-        .close-modal-btn {
-            width: 100%; padding: 12px; background: #3a3a3c; color: #fff; border: none;
-            border-radius: 12px; margin-top: 10px; font-weight: bold; cursor: pointer;
-        }
 
-        /* EMPTY STATE */
-        .empty-state { text-align: center; padding: 30px 10px; opacity: 0.6; }
-        .empty-icon { font-size: 40px; margin-bottom: 10px; display: block; }
-
-        /* SECTIONS */
-        .section-title { font-size: 18px; font-weight: 800; margin: 25px 0 10px 5px; }
-        .stat-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .big-val { font-size: 24px; font-weight: 800; }
-        .sub-val { font-size: 12px; opacity: 0.6; }
-
+        /* FAB */
         .fab-save { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; border-radius: 28px; background: #fff; color: #000; border: none; font-size: 24px; box-shadow: 0 4px 20px rgba(255,255,255,0.2); z-index: 999; }
+        .add-btn-main { width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px dashed #555; color: #888; border-radius: 12px; margin-top: 15px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="tab-hero" class="tab-content active">
+    <div id="tab-main" class="tab-content active">
         <div class="hero-header">
             <div class="hero-avatar">🦍</div>
             <div class="hero-info">
                 <div class="hero-name">EVO USER</div>
-                <div class="hero-lvl-badge" id="hero-rank">НОВИЧОК</div>
+                <div class="wilks-score" id="wilks-display">WILKS: --</div>
             </div>
             <div style="text-align: right;">
-                <div style="font-size:24px; font-weight:800;" id="total-xp">0</div>
-                <div style="font-size:10px; opacity:0.5;">XP</div>
+                <div style="font-size:10px; opacity:0.5; margin-bottom:2px;">ВЕС</div>
+                <div style="font-size:18px; font-weight:800;" id="main-weight">--</div>
             </div>
         </div>
 
-        <div class="section-title">🏆 Арена (Твои Дисциплины)</div>
+        <div style="font-size:12px; font-weight:bold; margin-bottom:10px; padding-left:5px;">📏 ЗАМЕРЫ (СМ)</div>
+        <div class="anthro-scroll">
+            <div class="anthro-card" onclick="editAnthro('chest')">
+                <div class="anthro-lbl">ГРУДЬ</div>
+                <div class="anthro-val" id="val-chest">--</div>
+            </div>
+            <div class="anthro-card" onclick="editAnthro('waist')">
+                <div class="anthro-lbl">ТАЛИЯ</div>
+                <div class="anthro-val" id="val-waist">--</div>
+            </div>
+            <div class="anthro-card" onclick="editAnthro('biceps')">
+                <div class="anthro-lbl">БИЦЕПС</div>
+                <div class="anthro-val" id="val-biceps">--</div>
+            </div>
+            <div class="anthro-card" onclick="editAnthro('legs')">
+                <div class="anthro-lbl">БЕДРО</div>
+                <div class="anthro-val" id="val-legs">--</div>
+            </div>
+        </div>
+
+        <div class="filter-scroll">
+            <button class="filter-btn active" onclick="filterDisc('all', this)">Все</button>
+            <button class="filter-btn" onclick="filterDisc('power', this)">Сила</button>
+            <button class="filter-btn" onclick="filterDisc('cardio', this)">Кардио</button>
+            <button class="filter-btn" onclick="filterDisc('cali', this)">Воркаут</button>
+        </div>
+
         <div id="arena-container" class="arena-grid"></div>
-        <div id="arena-empty" class="empty-state" style="display:none;">
-            <span class="empty-icon">🏟️</span>
-            Арена пуста.<br>Выбери дисциплину, чтобы начать путь.
-        </div>
         
-        <button class="add-disc-btn" onclick="openAddModal()">➕ Добавить дисциплину</button>
+        <button class="add-btn-main" onclick="openAddModal()">➕ Добавить дисциплину</button>
     </div>
 
-    <div id="tab-body" class="tab-content">
-        <div class="section-title">🧬 Био-Паспорт</div>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="stat-card" onclick="editStat('weight')">
-                <div><div class="sub-val">Вес</div><div class="big-val" id="val-weight">--</div></div>
-                <div>⚖️</div>
-            </div>
-            <div class="stat-card" onclick="editStat('fat')">
-                <div><div class="sub-val">Жир</div><div class="big-val" id="val-fat" style="color:#ff3b30">--</div></div>
-                <div>🩸</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-fin" class="tab-content">
-        <div class="section-title">💰 Казна</div>
-        <div class="stat-card">
-            <div><div class="sub-val">Накопления</div><div class="big-val" style="color:#30d158" id="fin-sav">--</div></div>
-            <button onclick="finAction('sav')" style="background:#30d158; border:none; border-radius:8px; width:40px; height:40px; font-weight:bold;">+</button>
-        </div>
-        <div class="stat-card">
-            <div><div class="sub-val">Долг</div><div class="big-val" style="color:#ff453a" id="fin-debt">--</div></div>
-            <button onclick="finAction('debt')" style="background:#ff453a; border:none; border-radius:8px; width:40px; height:40px; color:#fff; font-weight:bold;">📉</button>
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-card">
+            <h3 style="margin-top:0; text-align:center;">Библиотека EVO</h3>
+            <div id="modal-list"></div>
+            <button onclick="document.getElementById('add-modal').style.display='none'" style="width:100%; padding:12px; margin-top:10px; background:#333; border:none; color:#fff; border-radius:12px;">Закрыть</button>
         </div>
     </div>
 
     <button class="fab-save" onclick="saveGame()">💾</button>
 
-    <div class="modal-overlay" id="add-modal">
-        <div class="modal-card">
-            <div class="modal-title">Выбери дисциплину</div>
-            <div id="modal-list"></div>
-            <button class="close-modal-btn" onclick="closeAddModal()">Закрыть</button>
-        </div>
-    </div>
-
-    <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🛡️</div><div class="nav-label">Арена</div></div>
-        <div class="nav-item" onclick="switchTab('tab-body', this)"><div class="nav-icon">🧬</div><div class="nav-label">Био</div></div>
-        <div class="nav-item" onclick="switchTab('tab-fin', this)"><div class="nav-icon">💰</div><div class="nav-label">Казна</div></div>
-    </nav>
-
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
 
-        // --- ДАННЫЕ ПОЛЬЗОВАТЕЛЯ ---
+        // DATA
         let userData = {
-            weight: params.get('w') || '109.6',
-            fat: params.get('fat') || '31.8',
-            debt: 4.7,
-            sav: 0.0
+            weight: parseFloat(params.get('w')) || 109.6,
+            chest: 0, waist: 0, biceps: 0, legs: 0
         };
 
-        // --- БИБЛИОТЕКА ДИСЦИПЛИН ---
-        // Изначально все active: false
-        let disciplines = [
-            { id: 'bench', name: 'Жим лежа', icon: '🏋️‍♂️', unit: 'кг', val: 0, target: 150, type: 'max', active: false },
-            { id: 'squat', name: 'Присед', icon: '🦵', unit: 'кг', val: 0, target: 180, type: 'max', active: false },
-            { id: 'deadlift', name: 'Становая', icon: '🦖', unit: 'кг', val: 0, target: 200, type: 'max', active: false },
-            { id: 'pullup', name: 'Подтягивания', icon: '🦾', unit: 'раз', val: 0, target: 30, type: 'max', active: false },
-            { id: 'dips', name: 'Брусья', icon: '🪜', unit: 'раз', val: 0, target: 50, type: 'max', active: false },
-            { id: 'run5k', name: 'Бег 5км', icon: '🏃', unit: 'мин', val: 0, target: 20, type: 'min', active: false },
-            { id: 'run10k', name: 'Бег 10км', icon: '👟', unit: 'мин', val: 0, target: 45, type: 'min', active: false },
-            { id: 'plank', name: 'Планка', icon: '🪵', unit: 'сек', val: 0, target: 300, type: 'max', active: false }
+        // FULL LIBRARY
+        let library = [
+            // POWERLIFTING
+            { id: 'bench', name: 'Жим лежа', cat: 'power', unit: 'кг', target: 150, type: 'max' },
+            { id: 'squat', name: 'Присед', cat: 'power', unit: 'кг', target: 200, type: 'max' },
+            { id: 'deadlift', name: 'Становая', cat: 'power', unit: 'кг', target: 220, type: 'max' },
+            { id: 'press', name: 'Армейский жим', cat: 'power', unit: 'кг', target: 90, type: 'max' },
+            // CALISTHENICS
+            { id: 'pullup', name: 'Подтягивания', cat: 'cali', unit: 'раз', target: 30, type: 'max' },
+            { id: 'dips', name: 'Брусья', cat: 'cali', unit: 'раз', target: 50, type: 'max' },
+            { id: 'pushups', name: 'Отжимания', cat: 'cali', unit: 'раз', target: 100, type: 'max' },
+            { id: 'plank', name: 'Планка', cat: 'cali', unit: 'сек', target: 300, type: 'max' },
+            // CARDIO
+            { id: 'run100', name: 'Спринт 100м', cat: 'cardio', unit: 'сек', target: 12, type: 'min' },
+            { id: 'run5k', name: 'Бег 5км', cat: 'cardio', unit: 'мин', target: 20, type: 'min' },
+            { id: 'swim1k', name: 'Плавание 1км', cat: 'cardio', unit: 'мин', target: 25, type: 'min' }
         ];
 
-        // Загрузка (симуляция)
-        // Если бы были сохраненные, мы бы нашли их по id и поставили active: true
-        
-        // --- ЛОГИКА АРЕНЫ ---
-        function getRank(pct) {
-            if (pct >= 100) return { t: 'ЛЕГЕНДА', c: 'rank-legend' };
-            if (pct >= 80) return { t: 'ТИТАН', c: 'rank-titan' };
-            if (pct >= 60) return { t: 'МАСТЕР', c: 'rank-master' };
-            if (pct >= 40) return { t: 'ПРЕТЕНДЕНТ', c: 'rank-contender' };
-            if (pct >= 20) return { t: 'АТЛЕТ', c: 'rank-athlete' };
-            return { t: 'НОВИЧОК', c: 'rank-rookie' };
-        }
+        // Active disciplines state (val = result, ver = verification level 0/1/2)
+        let myDisc = [
+            { id: 'bench', val: 0, ver: 0 },
+            { id: 'pullup', val: 0, ver: 0 }
+        ];
 
-        function renderArena() {
+        // RENDER
+        function renderArena(filter = 'all') {
             const c = document.getElementById('arena-container');
-            const empty = document.getElementById('arena-empty');
             c.innerHTML = '';
             
-            const activeDiscs = disciplines.filter(d => d.active);
-            
-            if (activeDiscs.length === 0) {
-                empty.style.display = 'block';
-            } else {
-                empty.style.display = 'none';
-                activeDiscs.forEach(d => {
-                    let pct = 0;
-                    if (d.val > 0) {
-                        if (d.type === 'max') pct = (d.val / d.target) * 100;
-                        else pct = (d.target / d.val) * 100;
-                        if(d.type === 'min' && d.val > d.target * 3) pct = 5; 
-                    }
-                    const rank = getRank(pct);
+            myDisc.forEach(d => {
+                const lib = library.find(l => l.id === d.id);
+                if(filter !== 'all' && lib.cat !== filter) return;
 
-                    const card = document.createElement('div');
-                    card.className = 'discipline-card';
-                    card.innerHTML = `
-                        <button class="delete-disc-btn" onclick="removeDisc('${d.id}')">✕</button>
-                        <div onclick="updateDiscipline('${d.id}')">
-                            <span class="disc-icon">${d.icon}</span>
-                            <div class="disc-name">${d.name}</div>
-                            <div class="disc-val">${d.val > 0 ? d.val : '--'} <span style="font-size:10px; font-weight:normal;">${d.unit}</span></div>
-                            <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct, 100)}%; background:${getColor(pct)}"></div></div>
-                            <div class="disc-rank ${rank.c}">${rank.t}</div>
-                        </div>
-                    `;
-                    c.appendChild(card);
-                });
-            }
-            updateTotalXP();
-        }
-
-        function updateTotalXP() {
-            // Простой подсчет: сумма процентов всех активных дисциплин
-            let total = 0;
-            disciplines.filter(d => d.active).forEach(d => {
+                // Calc Rank
                 let pct = 0;
                 if(d.val > 0) {
-                    if (d.type === 'max') pct = (d.val / d.target) * 100;
-                    else pct = (d.target / d.val) * 100;
+                    if(lib.type === 'max') pct = (d.val / lib.target) * 100;
+                    else pct = (lib.target / d.val) * 100;
                 }
-                if(pct > 100) pct = 100;
-                total += pct;
+                
+                // Colors
+                let color = '#555'; let rankName = 'НОВИЧОК';
+                if(pct >= 20) { color = '#007aff'; rankName = 'АТЛЕТ'; }
+                if(pct >= 60) { color = '#cd7f32'; rankName = 'ПРЕТЕНДЕНТ'; }
+                if(pct >= 80) { color = '#ffd700'; rankName = 'ТИТАН'; }
+
+                // Verification Icon
+                let verClass = ''; let verIcon = '🛡️'; // Default
+                if(d.ver === 1) { verClass = 'verify-blue'; verIcon = '📷'; }
+                if(d.ver === 2) { verClass = 'verify-gold'; verIcon = '🏆'; }
+
+                const card = document.createElement('div');
+                card.className = 'discipline-card';
+                card.onclick = () => updateDisc(d.id);
+                card.innerHTML = `
+                    <div class="verify-badge ${verClass}">${verIcon}</div>
+                    <div class="disc-name">${lib.name}</div>
+                    <div class="disc-val">${d.val || '--'} <span style="font-size:10px;">${lib.unit}</span></div>
+                    <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct,100)}%; background:${color}"></div></div>
+                    <div class="disc-rank" style="color:${color}">${rankName}</div>
+                `;
+                c.appendChild(card);
             });
-            document.getElementById('total-xp').innerText = Math.floor(total);
+            updateWilks();
+        }
+
+        // LOGIC
+        function updateDisc(id) {
+            const d = myDisc.find(x => x.id === id);
+            const lib = library.find(l => l.id === id);
             
-            // Обновление ранга героя
-            let rank = 'НОВИЧОК';
-            if(total > 100) rank = 'АТЛЕТ';
-            if(total > 300) rank = 'ЭЛИТА';
-            if(total > 500) rank = 'БОГ ВОЙНЫ';
-            document.getElementById('hero-rank').innerText = rank;
-        }
-
-        function getColor(pct) {
-            if(pct>=100) return '#00ddff';
-            if(pct>=80) return '#ffd700';
-            if(pct>=60) return '#c0c0c0';
-            if(pct>=40) return '#cd7f32';
-            if(pct>=20) return '#007aff';
-            return '#555';
-        }
-
-        function updateDiscipline(id) {
-            const d = disciplines.find(x => x.id === id);
-            let p = prompt(`Новый результат в "${d.name}" (${d.unit}):`, d.val || '');
-            if (p) {
-                p = parseFloat(p.replace(',','.'));
-                if (!isNaN(p)) {
-                    d.val = p;
-                    tg.HapticFeedback.notificationOccurred('success');
-                    if (d.type === 'max' && p >= d.target) confetti();
-                    renderArena();
-                }
+            // Simple Action Sheet simulation
+            let action = prompt(`1. Ввести результат (${lib.unit})\n2. Повысить верификацию\n3. Удалить\n\nВведите 1, 2 или 3:`);
+            
+            if(action === '1') {
+                let v = prompt(`Новый результат в ${lib.name}:`);
+                if(v) { d.val = parseFloat(v.replace(',','.')); renderArena(); }
+            }
+            if(action === '2') {
+                let level = prompt(`Текущий уровень: ${d.ver}\nВведите уровень:\n0 - Без пруфов\n1 - Видео/Фото (Blue)\n2 - Официально (Gold)`);
+                if(level && ['0','1','2'].includes(level)) { d.ver = parseInt(level); renderArena(); }
+            }
+            if(action === '3') {
+                if(confirm('Удалить?')) { myDisc = myDisc.filter(x => x.id !== id); renderArena(); }
             }
         }
 
-        function removeDisc(id) {
-            if(confirm('Убрать из списка?')) {
-                const d = disciplines.find(x => x.id === id);
-                d.active = false;
-                renderArena();
-            }
-        }
-
-        // --- MODAL LOGIC ---
         function openAddModal() {
             const list = document.getElementById('modal-list');
             list.innerHTML = '';
-            // Показываем только НЕактивные
-            const available = disciplines.filter(d => !d.active);
-            
-            if(available.length === 0) {
-                list.innerHTML = '<div style="text-align:center; opacity:0.5">Все дисциплины выбраны!</div>';
-            } else {
-                available.forEach(d => {
-                    const item = document.createElement('div');
-                    item.className = 'select-item';
-                    item.onclick = () => { activateDisc(d.id); };
-                    item.innerHTML = `<span style="font-size:24px;">${d.icon}</span> <span style="font-weight:bold;">${d.name}</span>`;
-                    list.appendChild(item);
-                });
-            }
+            // Show only not added
+            library.forEach(lib => {
+                if(myDisc.find(d => d.id === lib.id)) return;
+                const div = document.createElement('div');
+                div.className = 'select-item';
+                div.innerHTML = `<b>${lib.name}</b> <span style="opacity:0.5; font-size:10px;">${lib.cat.toUpperCase()}</span>`;
+                div.onclick = () => {
+                    myDisc.push({ id: lib.id, val: 0, ver: 0 });
+                    document.getElementById('add-modal').style.display='none';
+                    renderArena();
+                };
+                list.appendChild(div);
+            });
             document.getElementById('add-modal').style.display = 'flex';
         }
 
-        function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
-        
-        function activateDisc(id) {
-            const d = disciplines.find(x => x.id === id);
-            d.active = true;
-            closeAddModal();
-            renderArena();
-            tg.HapticFeedback.selectionChanged();
+        // ANTHROPOMETRY
+        function editAnthro(type) {
+            let v = prompt('Введите значение (см):');
+            if(v) { 
+                userData[type] = parseFloat(v.replace(',','.')); 
+                document.getElementById('val-'+type).innerText = userData[type]; 
+            }
         }
 
-        // --- OTHER TABS & SAVE ---
-        document.getElementById('val-weight').innerText = userData.weight + ' кг';
-        document.getElementById('val-fat').innerText = userData.fat + '%';
-        function updateFin() {
-            document.getElementById('fin-sav').innerText = userData.sav.toFixed(2) + ' млн';
-            document.getElementById('fin-debt').innerText = userData.debt.toFixed(2) + ' млн';
+        // CALCULATE WILKS (Simplified Formula for Demo)
+        function updateWilks() {
+            // Formula requires body weight + total lifted weight (Bench + Squat + Deadlift)
+            const w = userData.weight;
+            if(w === 0) return;
+            
+            let totalLift = 0;
+            // Sum powerlifting moves
+            ['bench', 'squat', 'deadlift'].forEach(id => {
+                const d = myDisc.find(x => x.id === id);
+                if(d) totalLift += d.val;
+            });
+
+            // Very rough approx coefficient for demo (Real Wilks is complex math)
+            // Coeff for 110kg male is approx 0.58
+            let coeff = 500 / w; // Mock coeff
+            let score = totalLift * (coeff / 5); // Mock score
+            
+            if(totalLift > 0) {
+                document.getElementById('wilks-display').innerText = `WILKS (BETA): ${Math.floor(score)}`;
+            } else {
+                 document.getElementById('wilks-display').innerText = `WILKS: --`;
+            }
+            document.getElementById('main-weight').innerText = w + ' кг';
         }
-        updateFin();
-        function finAction(type) {
-            let v = prompt("Сумма (млн):");
-            if(v) { v = parseFloat(v.replace(',','.')); if(type==='sav') userData.sav += v; if(type==='debt') userData.debt -= v; updateFin(); }
+
+        function filterDisc(cat, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderArena(cat);
         }
-        function editStat(type) {
-            let v = prompt("Новое значение:");
-            if(v) { if(type==='weight') { userData.weight = v; document.getElementById('val-weight').innerText = v + ' кг'; } if(type==='fat') { userData.fat = v; document.getElementById('val-fat').innerText = v + '%'; } }
-        }
-        function switchTab(id, el) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            el.classList.add('active');
-        }
+
         function saveGame() {
             tg.HapticFeedback.notificationOccurred('success');
-            // Сохраняем ID активных дисциплин и их значения
-            const activeData = disciplines.filter(d => d.active).map(d => ({id: d.id, val: d.val}));
-            const data = { type: 'save_arena_v2', disciplines: activeData, weight: userData.weight, fat: userData.fat, debt: userData.debt, sav: userData.sav };
+            const data = { type: 'save_olympia', stats: userData, disciplines: myDisc };
             setTimeout(() => { tg.sendData(JSON.stringify(data)); }, 300);
         }
 
         // INIT
+        document.getElementById('main-weight').innerText = userData.weight + ' кг';
         renderArena();
+
     </script>
 </body>
 </html>
