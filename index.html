@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO ARENA</title>
+    <title>EVO ARENA v3.2</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -19,8 +19,6 @@
 
         :root {
             --color-body: #ff3b30;
-            --color-mind: #0a84ff;
-            --color-spirit: #bf5af2;
             --bg-card: #1c1c1e;
             --gold: #ffd700;
             --silver: #c0c0c0;
@@ -49,16 +47,15 @@
         .hero-header { display: flex; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .hero-avatar { width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 28px; border: 2px solid #fff; margin-right: 15px; }
         .hero-info { flex: 1; }
-        .hero-class { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
         .hero-name { font-size: 18px; font-weight: 800; }
+        .hero-lvl-badge { background: #333; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; display: inline-block; margin-top: 4px; }
 
-        /* ARENA CARDS (DISCIPLINES) */
+        /* ARENA CARDS */
         .arena-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .discipline-card { 
             background: #252527; border-radius: 16px; padding: 12px; 
             border: 1px solid rgba(255,255,255,0.05); text-align: center;
-            position: relative; overflow: hidden;
-            transition: transform 0.2s;
+            position: relative; overflow: hidden; transition: transform 0.2s;
         }
         .discipline-card:active { transform: scale(0.97); }
         .disc-icon { font-size: 24px; margin-bottom: 5px; display: block; }
@@ -75,23 +72,54 @@
 
         .disc-progress { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
         .disc-fill { height: 100%; background: #34c759; width: 0%; }
+        
+        /* DELETE BUTTON ON CARD */
+        .delete-disc-btn {
+            position: absolute; top: 5px; right: 5px; width: 20px; height: 20px;
+            background: rgba(0,0,0,0.5); color: #ff3b30; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
+            border: none; cursor: pointer; opacity: 0.6;
+        }
+
+        /* ADD BUTTON */
+        .add-disc-btn {
+            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px dashed #555;
+            color: #888; border-radius: 12px; margin-top: 15px; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-card {
+            background: #1c1c1e; width: 100%; max-width: 350px; border-radius: 20px;
+            padding: 20px; border: 1px solid rgba(255,255,255,0.1); max-height: 80vh; overflow-y: auto;
+        }
+        .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 15px; text-align: center; }
+        .select-item {
+            display: flex; align-items: center; gap: 10px; padding: 12px;
+            background: #2c2c2e; margin-bottom: 8px; border-radius: 12px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .select-item:active { background: #3a3a3c; }
+        .close-modal-btn {
+            width: 100%; padding: 12px; background: #3a3a3c; color: #fff; border: none;
+            border-radius: 12px; margin-top: 10px; font-weight: bold; cursor: pointer;
+        }
+
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 30px 10px; opacity: 0.6; }
+        .empty-icon { font-size: 40px; margin-bottom: 10px; display: block; }
 
         /* SECTIONS */
-        .section-title { font-size: 18px; font-weight: 800; margin: 25px 0 10px 5px; display: flex; align-items: center; justify-content: space-between; }
-        .add-btn-small { background: rgba(255,255,255,0.1); border: none; color: #fff; border-radius: 8px; width: 30px; height: 30px; font-size: 18px; cursor: pointer; }
-
-        /* QUESTS */
-        .quest-item { display: flex; align-items: center; justify-content: space-between; background: #252527; padding: 12px; margin-bottom: 8px; border-radius: 12px; border-left: 4px solid #444; }
-        .quest-item.done { opacity: 0.5; filter: grayscale(1); }
-        .type-body { border-color: var(--color-body); } 
-        .type-mind { border-color: var(--color-mind); } 
-        .type-spirit { border-color: var(--color-spirit); }
-
-        /* FINANCE & STATS */
+        .section-title { font-size: 18px; font-weight: 800; margin: 25px 0 10px 5px; }
         .stat-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .big-val { font-size: 24px; font-weight: 800; }
         .sub-val { font-size: 12px; opacity: 0.6; }
-        
+
         .fab-save { position: fixed; bottom: 85px; right: 20px; width: 56px; height: 56px; border-radius: 28px; background: #fff; color: #000; border: none; font-size: 24px; box-shadow: 0 4px 20px rgba(255,255,255,0.2); z-index: 999; }
     </style>
 </head>
@@ -101,17 +129,23 @@
         <div class="hero-header">
             <div class="hero-avatar">🦍</div>
             <div class="hero-info">
-                <div class="hero-class" id="hero-class">НОВИЧОК</div>
                 <div class="hero-name">EVO USER</div>
+                <div class="hero-lvl-badge" id="hero-rank">НОВИЧОК</div>
             </div>
             <div style="text-align: right;">
-                <div style="font-size:24px; font-weight:800;" id="total-lvl">1</div>
-                <div style="font-size:10px; opacity:0.5;">LEVEL</div>
+                <div style="font-size:24px; font-weight:800;" id="total-xp">0</div>
+                <div style="font-size:10px; opacity:0.5;">XP</div>
             </div>
         </div>
 
-        <div class="section-title">⚡ Задачи дня <button class="add-btn-small" onclick="addNewQuest()">+</button></div>
-        <div id="quests-container"></div>
+        <div class="section-title">🏆 Арена (Твои Дисциплины)</div>
+        <div id="arena-container" class="arena-grid"></div>
+        <div id="arena-empty" class="empty-state" style="display:none;">
+            <span class="empty-icon">🏟️</span>
+            Арена пуста.<br>Выбери дисциплину, чтобы начать путь.
+        </div>
+        
+        <button class="add-disc-btn" onclick="openAddModal()">➕ Добавить дисциплину</button>
     </div>
 
     <div id="tab-body" class="tab-content">
@@ -126,10 +160,6 @@
                 <div>🩸</div>
             </div>
         </div>
-        
-        <div class="section-title">🏆 Арена (Рекорды)</div>
-        <div style="font-size:12px; opacity:0.5; margin-bottom:10px; padding-left:5px;">Нажми на карточку, чтобы внести новый результат (PB).</div>
-        <div class="arena-grid" id="arena-container"></div>
     </div>
 
     <div id="tab-fin" class="tab-content">
@@ -146,9 +176,17 @@
 
     <button class="fab-save" onclick="saveGame()">💾</button>
 
+    <div class="modal-overlay" id="add-modal">
+        <div class="modal-card">
+            <div class="modal-title">Выбери дисциплину</div>
+            <div id="modal-list"></div>
+            <button class="close-modal-btn" onclick="closeAddModal()">Закрыть</button>
+        </div>
+    </div>
+
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🛡️</div><div class="nav-label">Герой</div></div>
-        <div class="nav-item" onclick="switchTab('tab-body', this)"><div class="nav-icon">💪</div><div class="nav-label">Тело</div></div>
+        <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🛡️</div><div class="nav-label">Арена</div></div>
+        <div class="nav-item" onclick="switchTab('tab-body', this)"><div class="nav-icon">🧬</div><div class="nav-label">Био</div></div>
         <div class="nav-item" onclick="switchTab('tab-fin', this)"><div class="nav-icon">💰</div><div class="nav-label">Казна</div></div>
     </nav>
 
@@ -161,24 +199,26 @@
             weight: params.get('w') || '109.6',
             fat: params.get('fat') || '31.8',
             debt: 4.7,
-            sav: 0.0,
-            xp: { body: 0, mind: 0, spirit: 0 }
+            sav: 0.0
         };
 
-        // --- ARENA SYSTEM (ДИСЦИПЛИНЫ) ---
-        // type: 'max' (чем больше тем лучше) или 'min' (чем меньше тем лучше, для бега)
-        // target: Элитный норматив (Titan level)
+        // --- БИБЛИОТЕКА ДИСЦИПЛИН ---
+        // Изначально все active: false
         let disciplines = [
-            { id: 'bench', name: 'Жим лежа', icon: '🏋️‍♂️', unit: 'кг', val: 0, target: 150, type: 'max' },
-            { id: 'squat', name: 'Присед', icon: '🦵', unit: 'кг', val: 0, target: 180, type: 'max' },
-            { id: 'pullup', name: 'Подтягивания', icon: '🦾', unit: 'раз', val: 0, target: 30, type: 'max' },
-            { id: 'run5k', name: 'Бег 5км', icon: '🏃', unit: 'мин', val: 0, target: 20, type: 'min' }, // target 20 mins
-            { id: 'plank', name: 'Планка', icon: '🪵', unit: 'сек', val: 0, target: 300, type: 'max' }
+            { id: 'bench', name: 'Жим лежа', icon: '🏋️‍♂️', unit: 'кг', val: 0, target: 150, type: 'max', active: false },
+            { id: 'squat', name: 'Присед', icon: '🦵', unit: 'кг', val: 0, target: 180, type: 'max', active: false },
+            { id: 'deadlift', name: 'Становая', icon: '🦖', unit: 'кг', val: 0, target: 200, type: 'max', active: false },
+            { id: 'pullup', name: 'Подтягивания', icon: '🦾', unit: 'раз', val: 0, target: 30, type: 'max', active: false },
+            { id: 'dips', name: 'Брусья', icon: '🪜', unit: 'раз', val: 0, target: 50, type: 'max', active: false },
+            { id: 'run5k', name: 'Бег 5км', icon: '🏃', unit: 'мин', val: 0, target: 20, type: 'min', active: false },
+            { id: 'run10k', name: 'Бег 10км', icon: '👟', unit: 'мин', val: 0, target: 45, type: 'min', active: false },
+            { id: 'plank', name: 'Планка', icon: '🪵', unit: 'сек', val: 0, target: 300, type: 'max', active: false }
         ];
 
-        // Загрузка сохраненных дисциплин (фейковая)
-        // В реальности парсили бы JSON из params
+        // Загрузка (симуляция)
+        // Если бы были сохраненные, мы бы нашли их по id и поставили active: true
         
+        // --- ЛОГИКА АРЕНЫ ---
         function getRank(pct) {
             if (pct >= 100) return { t: 'ЛЕГЕНДА', c: 'rank-legend' };
             if (pct >= 80) return { t: 'ТИТАН', c: 'rank-titan' };
@@ -190,31 +230,62 @@
 
         function renderArena() {
             const c = document.getElementById('arena-container');
+            const empty = document.getElementById('arena-empty');
             c.innerHTML = '';
-            disciplines.forEach(d => {
-                // Расчет процента
+            
+            const activeDiscs = disciplines.filter(d => d.active);
+            
+            if (activeDiscs.length === 0) {
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+                activeDiscs.forEach(d => {
+                    let pct = 0;
+                    if (d.val > 0) {
+                        if (d.type === 'max') pct = (d.val / d.target) * 100;
+                        else pct = (d.target / d.val) * 100;
+                        if(d.type === 'min' && d.val > d.target * 3) pct = 5; 
+                    }
+                    const rank = getRank(pct);
+
+                    const card = document.createElement('div');
+                    card.className = 'discipline-card';
+                    card.innerHTML = `
+                        <button class="delete-disc-btn" onclick="removeDisc('${d.id}')">✕</button>
+                        <div onclick="updateDiscipline('${d.id}')">
+                            <span class="disc-icon">${d.icon}</span>
+                            <div class="disc-name">${d.name}</div>
+                            <div class="disc-val">${d.val > 0 ? d.val : '--'} <span style="font-size:10px; font-weight:normal;">${d.unit}</span></div>
+                            <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct, 100)}%; background:${getColor(pct)}"></div></div>
+                            <div class="disc-rank ${rank.c}">${rank.t}</div>
+                        </div>
+                    `;
+                    c.appendChild(card);
+                });
+            }
+            updateTotalXP();
+        }
+
+        function updateTotalXP() {
+            // Простой подсчет: сумма процентов всех активных дисциплин
+            let total = 0;
+            disciplines.filter(d => d.active).forEach(d => {
                 let pct = 0;
-                if (d.val > 0) {
+                if(d.val > 0) {
                     if (d.type === 'max') pct = (d.val / d.target) * 100;
-                    else pct = (d.target / d.val) * 100; // Для бега: Target(20) / Val(25) = 80%
-                    // Коррекция для бега, если бежал очень долго
-                    if(d.type === 'min' && d.val > d.target * 3) pct = 5; 
+                    else pct = (d.target / d.val) * 100;
                 }
-                
-                const rank = getRank(pct);
-                
-                const card = document.createElement('div');
-                card.className = 'discipline-card';
-                card.onclick = () => updateDiscipline(d.id);
-                card.innerHTML = `
-                    <span class="disc-icon">${d.icon}</span>
-                    <div class="disc-name">${d.name}</div>
-                    <div class="disc-val">${d.val > 0 ? d.val : '--'} <span style="font-size:10px; font-weight:normal;">${d.unit}</span></div>
-                    <div class="disc-progress"><div class="disc-fill" style="width:${Math.min(pct, 100)}%; background:${getColor(pct)}"></div></div>
-                    <div class="disc-rank ${rank.c}">${rank.t}</div>
-                `;
-                c.appendChild(card);
+                if(pct > 100) pct = 100;
+                total += pct;
             });
+            document.getElementById('total-xp').innerText = Math.floor(total);
+            
+            // Обновление ранга героя
+            let rank = 'НОВИЧОК';
+            if(total > 100) rank = 'АТЛЕТ';
+            if(total > 300) rank = 'ЭЛИТА';
+            if(total > 500) rank = 'БОГ ВОЙНЫ';
+            document.getElementById('hero-rank').innerText = rank;
         }
 
         function getColor(pct) {
@@ -228,7 +299,7 @@
 
         function updateDiscipline(id) {
             const d = disciplines.find(x => x.id === id);
-            let p = prompt(`Твой новый рекорд в "${d.name}" (${d.unit}):`, d.val || '');
+            let p = prompt(`Новый результат в "${d.name}" (${d.unit}):`, d.val || '');
             if (p) {
                 p = parseFloat(p.replace(',','.'));
                 if (!isNaN(p)) {
@@ -240,86 +311,77 @@
             }
         }
 
-        // --- QUESTS ---
-        let quests = [
-            { id: 1, name: "Силовая тренировка", type: "body", done: false },
-            { id: 2, name: "Чтение (20 стр)", type: "mind", done: false },
-            { id: 3, name: "Режим (Сон до 00:00)", type: "spirit", done: false }
-        ];
-
-        function renderQuests() {
-            const c = document.getElementById('quests-container');
-            c.innerHTML = '';
-            quests.forEach((q, idx) => {
-                const d = document.createElement('div');
-                d.className = `quest-item type-${q.type} ${q.done ? 'done' : ''}`;
-                d.onclick = () => toggleQuest(idx);
-                d.innerHTML = `<div>${q.name}</div><div>${q.done ? '✅' : '⭕'}</div>`;
-                c.appendChild(d);
-            });
+        function removeDisc(id) {
+            if(confirm('Убрать из списка?')) {
+                const d = disciplines.find(x => x.id === id);
+                d.active = false;
+                renderArena();
+            }
         }
 
-        function toggleQuest(idx) {
-            quests[idx].done = !quests[idx].done;
+        // --- MODAL LOGIC ---
+        function openAddModal() {
+            const list = document.getElementById('modal-list');
+            list.innerHTML = '';
+            // Показываем только НЕактивные
+            const available = disciplines.filter(d => !d.active);
+            
+            if(available.length === 0) {
+                list.innerHTML = '<div style="text-align:center; opacity:0.5">Все дисциплины выбраны!</div>';
+            } else {
+                available.forEach(d => {
+                    const item = document.createElement('div');
+                    item.className = 'select-item';
+                    item.onclick = () => { activateDisc(d.id); };
+                    item.innerHTML = `<span style="font-size:24px;">${d.icon}</span> <span style="font-weight:bold;">${d.name}</span>`;
+                    list.appendChild(item);
+                });
+            }
+            document.getElementById('add-modal').style.display = 'flex';
+        }
+
+        function closeAddModal() { document.getElementById('add-modal').style.display = 'none'; }
+        
+        function activateDisc(id) {
+            const d = disciplines.find(x => x.id === id);
+            d.active = true;
+            closeAddModal();
+            renderArena();
             tg.HapticFeedback.selectionChanged();
-            renderQuests();
-        }
-        function addNewQuest() {
-            const n = prompt("Задача:");
-            if(n) { quests.push({id: Date.now(), name:n, type:'body', done:false}); renderQuests(); }
         }
 
-        // --- UI UPDATES ---
+        // --- OTHER TABS & SAVE ---
         document.getElementById('val-weight').innerText = userData.weight + ' кг';
         document.getElementById('val-fat').innerText = userData.fat + '%';
-        
         function updateFin() {
             document.getElementById('fin-sav').innerText = userData.sav.toFixed(2) + ' млн';
             document.getElementById('fin-debt').innerText = userData.debt.toFixed(2) + ' млн';
         }
         updateFin();
-
         function finAction(type) {
             let v = prompt("Сумма (млн):");
-            if(v) {
-                v = parseFloat(v.replace(',','.'));
-                if(type==='sav') userData.sav += v;
-                if(type==='debt') userData.debt -= v;
-                updateFin();
-            }
+            if(v) { v = parseFloat(v.replace(',','.')); if(type==='sav') userData.sav += v; if(type==='debt') userData.debt -= v; updateFin(); }
         }
         function editStat(type) {
             let v = prompt("Новое значение:");
-            if(v) { 
-                if(type==='weight') { userData.weight = v; document.getElementById('val-weight').innerText = v + ' кг'; }
-                if(type==='fat') { userData.fat = v; document.getElementById('val-fat').innerText = v + '%'; }
-            }
+            if(v) { if(type==='weight') { userData.weight = v; document.getElementById('val-weight').innerText = v + ' кг'; } if(type==='fat') { userData.fat = v; document.getElementById('val-fat').innerText = v + '%'; } }
         }
-
         function switchTab(id, el) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
-
         function saveGame() {
             tg.HapticFeedback.notificationOccurred('success');
-            const data = {
-                type: 'save_arena',
-                disciplines: disciplines.map(d => ({id:d.id, val:d.val})),
-                weight: userData.weight,
-                fat: userData.fat,
-                debt: userData.debt,
-                sav: userData.sav
-            };
+            // Сохраняем ID активных дисциплин и их значения
+            const activeData = disciplines.filter(d => d.active).map(d => ({id: d.id, val: d.val}));
+            const data = { type: 'save_arena_v2', disciplines: activeData, weight: userData.weight, fat: userData.fat, debt: userData.debt, sav: userData.sav };
             setTimeout(() => { tg.sendData(JSON.stringify(data)); }, 300);
         }
 
         // INIT
         renderArena();
-        renderQuests();
-
     </script>
 </body>
 </html>
