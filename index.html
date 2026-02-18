@@ -3,21 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EVO Dashboard</title>
+    <title>EVO RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            background-color: var(--tg-theme-bg-color, #000000);
-            color: var(--tg-theme-text-color, #ffffff);
+            background-color: #000000;
+            color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 15px; padding-bottom: 100px; user-select: none; /* Уменьшил отступы тела */
+            margin: 0; padding: 15px; padding-bottom: 90px; user-select: none;
             overflow-x: hidden;
         }
 
-        /* НАВИГАЦИЯ */
+        /* RPG COLORS */
+        :root {
+            --color-body: #ff3b30;
+            --color-mind: #0a84ff;
+            --color-spirit: #bf5af2;
+            --bg-card: #1c1c1e;
+        }
+
+        /* NAVIGATION */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0;
             height: 65px; background: rgba(28, 28, 30, 0.95);
@@ -26,400 +34,356 @@
             display: flex; justify-content: space-around; align-items: center;
             z-index: 1000; padding-bottom: 10px;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s; cursor: pointer; width: 60px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; opacity: 0.5; transition: 0.2s; width: 60px; }
         .nav-item.active { opacity: 1; transform: scale(1.1); }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; }
-        .nav-label { font-size: 10px; font-weight: 500; }
+        .nav-icon { font-size: 24px; margin-bottom: 2px; }
+        .nav-label { font-size: 10px; font-weight: 600; }
 
         .tab-content { display: none; animation: fadeEffect 0.2s; }
         .tab-content.active { display: block; }
         @keyframes fadeEffect { from {opacity: 0; transform: translateY(5px);} to {opacity: 1; transform: translateY(0);} }
 
+        /* HEADER HERO */
+        .hero-header { display: flex; align-items: center; margin-bottom: 20px; background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .hero-avatar { 
+            width: 70px; height: 70px; border-radius: 50%; 
+            background: linear-gradient(135deg, #444, #111); 
+            display: flex; align-items: center; justify-content: center; font-size: 30px; border: 2px solid #fff; margin-right: 15px;
+        }
+        .hero-info { flex: 1; }
+        .hero-class { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+        .hero-name { font-size: 20px; font-weight: 800; margin: 2px 0; }
+        .hero-lvl-badge { background: #333; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; color: #fff; display: inline-block; }
+
+        /* SKILL BARS (RPG STYLE) */
+        .skill-card { background: var(--bg-card); padding: 15px; border-radius: 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden; }
+        .skill-header { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
+        .skill-title { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+        .skill-lvl { font-size: 12px; font-weight: bold; opacity: 0.7; }
+        .xp-bar-bg { background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden; }
+        .xp-bar-fill { height: 100%; transition: width 0.5s ease; }
+        
+        .mode-body .xp-bar-fill { background: var(--color-body); box-shadow: 0 0 10px var(--color-body); }
+        .mode-mind .xp-bar-fill { background: var(--color-mind); box-shadow: 0 0 10px var(--color-mind); }
+        .mode-spirit .xp-bar-fill { background: var(--color-spirit); box-shadow: 0 0 10px var(--color-spirit); }
+
+        /* QUESTS (TASKS) */
+        .quest-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            background: #252527; padding: 12px; margin-bottom: 8px; border-radius: 12px; 
+            border-left: 4px solid #444; transition: 0.2s;
+        }
+        .quest-item.done { opacity: 0.5; filter: grayscale(1); }
+        .quest-info { display: flex; flex-direction: column; }
+        .quest-name { font-weight: 600; font-size: 15px; }
+        .quest-reward { font-size: 10px; font-weight: bold; margin-top: 2px; }
+        
+        .type-body { border-color: var(--color-body); } .type-body .quest-reward { color: var(--color-body); }
+        .type-mind { border-color: var(--color-mind); } .type-mind .quest-reward { color: var(--color-mind); }
+        .type-spirit { border-color: var(--color-spirit); } .type-spirit .quest-reward { color: var(--color-spirit); }
+
+        .quest-check {
+            width: 28px; height: 28px; border-radius: 8px; border: 2px solid #555;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: 0.2s;
+        }
+        .quest-check.checked { background: #34c759; border-color: #34c759; }
+
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: var(--bg-card); padding: 15px; border-radius: 16px; text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 800; margin-top: 5px; }
+        .stat-lbl { font-size: 11px; opacity: 0.5; text-transform: uppercase; }
+
         /* FAB */
         .fab-save {
             position: fixed; bottom: 85px; right: 20px;
             width: 56px; height: 56px; border-radius: 28px;
-            background: var(--tg-theme-button-color, #007aff);
-            color: white; border: none; font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,122,255,0.4);
+            background: #fff; color: #000; border: none; font-size: 24px;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.2);
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 999; transition: 0.2s;
+            cursor: pointer; z-index: 999;
         }
-        .fab-save:active { transform: scale(0.9); }
-
-        /* HEADER */
-        .header { text-align: center; margin-bottom: 20px; }
-        .avatar-container { position: relative; width: 80px; margin: 0 auto 10px; }
-        .avatar {
-            width: 80px; height: 80px;
-            background: linear-gradient(45deg, #ff0055, #00ddff);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px;
-            border: 3px solid #1c1c1e;
-        }
-        .streak-badge { position: absolute; right: -5px; bottom: 0; background: #ff3b30; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; border: 2px solid #1c1c1e; }
-        .xp-bar-container { background: #333; height: 6px; border-radius: 3px; width: 100px; margin: 5px auto; overflow: hidden; }
-        .xp-bar-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #ec4899); width: 0%; transition: width 1s; }
-        .level-text { font-size: 12px; opacity: 0.6; font-weight: bold; letter-spacing: 1px; }
-
-        /* CARDS (ИСПРАВЛЕНО: Уменьшены отступы) */
-        .card { 
-            background-color: #1c1c1e; 
-            border-radius: 16px; 
-            padding: 15px; /* Было 20px, стало 15px для экономии места */
-            margin-bottom: 15px; 
-            border: 1px solid rgba(255,255,255,0.05); 
-        }
-        
-        .stat-row { display: flex; justify-content: space-between; align-items: center; }
-        .stat-label { font-size: 15px; font-weight: 500; opacity: 0.8; }
-        .stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
-        .edit-btn { background: rgba(255,255,255,0.1); border: none; width: 32px; height: 32px; border-radius: 50%; margin-left: 10px; cursor: pointer; }
-        .config-btn { background: none; border: none; font-size: 18px; opacity: 0.5; margin-right: 10px; cursor: pointer; }
-
-        .chart-container { position: relative; height: 200px; width: 100%; margin-top: 15px; }
-
-        /* DASHBOARD GRID */
-        .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .dash-card { background: #1c1c1e; padding: 12px; border-radius: 16px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-        .dash-val { font-size: 17px; font-weight: bold; margin-top: 5px; white-space: nowrap; }
-        .dash-lbl { font-size: 11px; opacity: 0.5; }
-
-        /* CONTROLS */
-        input[type=range] { width: 100%; margin: 20px 0 10px; accent-color: #007aff; }
-        .sleep-control { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; background: #2c2c2e; padding: 5px; border-radius: 12px; }
-        .sleep-btn { width: 40px; height: 40px; border-radius: 8px; border: none; background: #3a3a3c; color: white; font-size: 20px; font-weight: bold; }
-        .note-input { width: 100%; background: #2c2c2e; color: #fff; border: none; border-radius: 12px; padding: 12px; margin-top: 15px; font-size: 14px; min-height: 50px; resize: none; }
-
-        /* HABITS */
-        .habit-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .habit-name { font-size: 16px; font-weight: 500; }
-        .delete-habit { color: #ff3b30; opacity: 0.3; margin-right: 15px; border: none; background: none; font-size: 18px; }
-        .add-habit-btn { background: rgba(0,122,255,0.1); color: #007aff; border: 1px dashed #007aff; width: 100%; padding: 12px; border-radius: 12px; margin-top: 15px; font-weight: 600; }
-        .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #3a3a3c; transition: .3s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        input:checked + .slider { background-color: #34c759; }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* FINANCE (FIXED LAYOUT) */
-        .fin-bar-bg { background: #2c2c2e; height: 16px; border-radius: 8px; margin: 15px 0 5px; overflow: hidden; position: relative; }
-        .fin-bar-fill { height: 100%; width: 0%; transition: width 0.5s ease-out; } 
-        .mode-debt { background: linear-gradient(90deg, #ff453a, #ff9f0a); }
-        .mode-savings { background: linear-gradient(90deg, #30d158, #63e6e2); }
-        
-        /* Исправленный блок ввода */
-        .fin-action-row { display: flex; gap: 8px; margin-top: 15px; }
-        .fin-input { 
-            flex: 1; /* Растягивается */
-            background: #2c2c2e; border: 1px solid #444; color: #fff;
-            border-radius: 10px; padding: 10px; font-size: 16px; font-weight: bold;
-            min-width: 0; /* Важно для flex контейнера */
-        }
-        .fin-btn {
-            border: none; border-radius: 10px; font-weight: bold; padding: 0 12px; cursor: pointer; color: #000;
-            font-size: 14px; /* Чуть меньше шрифт */
-            white-space: nowrap; /* Текст не переносится */
-        }
-        .btn-pay { background: #ff453a; color: white; }
-        .btn-add { background: #30d158; color: white; }
-        
-        .money-input-main { width: 100%; background: #2c2c2e; color: #30d158; border: none; border-radius: 12px; padding: 15px; font-size: 20px; font-weight: bold; margin-top: 15px; text-align: center; }
-
-        /* HEATMAP */
-        .heatmap-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 10px; }
-        .day-sq { width: 100%; aspect-ratio: 1; border-radius: 4px; background: #2c2c2e; }
-        .lv-0 { background: #2c2c2e; } .lv-1 { background: #0e4429; } .lv-2 { background: #006d32; } .lv-3 { background: #26a641; } .lv-4 { background: #39d353; box-shadow: 0 0 8px rgba(57, 211, 83, 0.4); }
-        .section-title { font-size: 28px; font-weight: 800; margin-bottom: 20px; padding-left: 5px; }
-        .empty-state { text-align: center; opacity: 0.4; font-size: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div id="tab-dash" class="tab-content active">
-        <div class="header" style="margin-top: 20px;">
-            <div class="avatar-container"><div class="avatar">🦍</div><div class="streak-badge" id="streak-val">🔥 0</div></div>
-            <div class="level-text" id="lvl-badge">LEVEL 1</div>
-            <div class="xp-bar-container"><div class="xp-bar-fill" id="xp-fill"></div></div>
-        </div>
-
-        <div class="dash-grid">
-            <div class="dash-card">
-                <div class="dash-lbl">⚖️ Вес</div>
-                <div class="dash-val" onclick="editWeightLocally()" id="dash-weight-val">--</div>
-            </div>
-            <div class="dash-card" style="grid-column: span 2; display: flex; justify-content: space-around;">
-                <div>
-                    <div class="dash-lbl">💰 Накопления</div>
-                    <div class="dash-val" id="dash-sav-val" style="color: #30d158;">--</div>
-                </div>
-                <div style="border-left: 1px solid rgba(255,255,255,0.1);"></div>
-                <div>
-                    <div class="dash-lbl">💸 Долг</div>
-                    <div class="dash-val" id="dash-debt-val" style="color: #ff453a;">--</div>
-                </div>
+    <div id="tab-hero" class="tab-content active">
+        <div class="hero-header">
+            <div class="hero-avatar">🦍</div>
+            <div class="hero-info">
+                <div class="hero-class" id="hero-class">НОВИЧОК</div>
+                <div class="hero-name">EVO USER</div>
+                <div class="hero-lvl-badge" id="total-lvl">LVL 1</div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="stat-row"><span class="stat-label">🎯 Фокус на сегодня</span></div>
-            <div id="dash-habits-container"></div>
-            <div id="dash-empty-msg" class="empty-state" style="display:none;">Все задачи выполнены! Ты машина. 🦍✅</div>
+        <div class="skill-card mode-body">
+            <div class="skill-header">
+                <span class="skill-title" style="color:var(--color-body)">🔴 ТЕЛО (Сила)</span>
+                <span class="skill-lvl" id="lvl-body">Lvl 1</span>
+            </div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-body" style="width: 0%"></div></div>
+        </div>
+        
+        <div class="skill-card mode-mind">
+            <div class="skill-header">
+                <span class="skill-title" style="color:var(--color-mind)">🔵 РАЗУМ (Интеллект)</span>
+                <span class="skill-lvl" id="lvl-mind">Lvl 1</span>
+            </div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-mind" style="width: 0%"></div></div>
         </div>
 
-        <div class="card">
-            <span class="stat-label" style="opacity:0.7">📝 Заметка</span>
-            <textarea class="note-input" id="daily-note" rows="1" placeholder="Главная мысль дня..."></textarea>
+        <div class="skill-card mode-spirit">
+            <div class="skill-header">
+                <span class="skill-title" style="color:var(--color-spirit)">🟣 ДУХ (Дисциплина)</span>
+                <span class="skill-lvl" id="lvl-spirit">Lvl 1</span>
+            </div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill" id="bar-spirit" style="width: 0%"></div></div>
         </div>
+
+        <h3 style="margin-top:25px; margin-bottom:10px; font-size:16px;">⚡ Ежедневные Квесты</h3>
+        <div id="quests-container"></div>
+        <button onclick="addNewQuest()" style="width:100%; padding:15px; background:rgba(255,255,255,0.05); border:1px dashed #555; color:#888; border-radius:12px; margin-top:10px;">+ Добавить квест</button>
     </div>
 
     <div id="tab-health" class="tab-content">
-        <div class="section-title">Здоровье</div>
-        <div class="card">
-            <div class="stat-row"><span class="stat-label">⚖️ Динамика</span><div style="display: flex; align-items: center;"><span class="stat-value" id="weight-val">--</span><button class="edit-btn" onclick="editWeightLocally()">✏️</button></div></div>
-            <div class="chart-container"><canvas id="weightChart"></canvas></div>
-        </div>
-        <div class="card">
-            <div class="stat-row"><span class="stat-label">⚡ Энергия</span><span class="stat-value" id="energy-display">50%</span></div>
-            <input type="range" id="energy-slider" min="0" max="100" value="50" step="5" oninput="updateEnergy(this.value)">
-            <div style="margin-top: 25px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px;">
-                <div class="stat-row"><span class="stat-label">😴 Сон</span><span class="stat-value" id="sleep-val" style="color: #0a84ff;">7.0 ч</span></div>
-                <div class="sleep-control"><button class="sleep-btn" onclick="changeSleep(-0.5)">−</button><button class="sleep-btn" onclick="changeSleep(0.5)">+</button></div>
+        <h2 style="margin:0 0 20px 0;">Мониторинг</h2>
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-lbl">Вес</div>
+                <div class="stat-val" id="val-weight" onclick="editWeight()">--</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-lbl">Жир</div>
+                <div class="stat-val" id="val-fat" style="color:#ff3b30;">--%</div>
             </div>
         </div>
-    </div>
-
-    <div id="tab-habits" class="tab-content">
-        <div class="section-title">Привычки</div>
-        <div class="card"><div class="stat-row" style="margin-bottom: 10px;"><span class="stat-label">📅 История побед</span></div><div class="heatmap-grid" id="heatmap"></div></div>
-        <div class="card"><div id="habits-container"></div><button class="add-habit-btn" onclick="addNewHabit()">➕ Добавить привычку</button></div>
+        <div class="skill-card">
+            <div class="skill-header"><span class="skill-title">📉 График Веса</span></div>
+            <div style="height:200px; width:100%;"><canvas id="weightChart"></canvas></div>
+        </div>
+        <div class="skill-card">
+            <div class="skill-header"><span class="skill-title">😴 Сон (ч)</span></div>
+            <input type="range" min="0" max="12" step="0.5" id="sleep-slider" style="width:100%; margin-top:10px;" oninput="updateSleepUI(this.value)">
+            <div style="text-align:center; font-weight:bold; font-size:24px; margin-top:10px;" id="sleep-val">7.0</div>
+        </div>
     </div>
 
     <div id="tab-finance" class="tab-content">
-        <div class="section-title">Финансы</div>
-        
-        <div class="card">
-            <div class="stat-row">
-                <div style="display: flex; align-items: center;">
-                    <button class="config-btn" onclick="setTarget('savings')">⚙️</button>
-                    <span class="stat-label" style="color: #30d158;">💰 Накопления</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="stat-value" id="fin-sav-val">--</span>
-                    <button class="edit-btn" onclick="editMoneyTotal('savings')">✏️</button>
-                </div>
-            </div>
-            
-            <div class="fin-bar-bg"><div class="fin-bar-fill mode-savings" id="bar-sav"></div></div>
-            <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="goal-sav">Цель: --</div>
-            
-            <div class="fin-action-row">
-                <input type="number" class="fin-input" id="input-sav" placeholder="Сумма">
-                <button class="fin-btn btn-add" onclick="transactMoney('savings')">Пополнить</button>
-            </div>
+        <h2 style="margin:0 0 20px 0;">Ресурсы</h2>
+        <div class="skill-card">
+            <div class="skill-header"><span class="skill-title" style="color:#30d158">💰 Казна (Накопления)</span></div>
+            <div class="stat-val" id="fin-sav" style="font-size:28px;">--</div>
+            <button onclick="finAction('sav')" style="width:100%; padding:12px; background:#30d158; border:none; border-radius:8px; color:#000; font-weight:bold; margin-top:10px;">Пополнить</button>
         </div>
-
-        <div class="card">
-            <div class="stat-row">
-                <div style="display: flex; align-items: center;">
-                    <button class="config-btn" onclick="setTarget('debt')">⚙️</button>
-                    <span class="stat-label" style="color: #ff453a;">💸 Долг</span>
-                </div>
-                <div style="display: flex; align-items: center;">
-                    <span class="stat-value" id="fin-debt-val">--</span>
-                    <button class="edit-btn" onclick="editMoneyTotal('debt')">✏️</button>
-                </div>
-            </div>
-            
-            <div class="fin-bar-bg"><div class="fin-bar-fill mode-debt" id="bar-debt"></div></div>
-            <div style="font-size: 11px; opacity: 0.5; text-align: right;" id="goal-debt">Старт: --</div>
-            
-            <div class="fin-action-row">
-                <input type="number" class="fin-input" id="input-debt" placeholder="Сумма">
-                <button class="fin-btn btn-pay" onclick="transactMoney('debt')">Погасить</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <span class="stat-label" style="opacity: 0.5;">Внести доход (Статистика)</span>
-            <input type="number" class="money-input-main" id="money-earned" placeholder="0 ₽">
+        <div class="skill-card">
+            <div class="skill-header"><span class="skill-title" style="color:#ff453a">💸 Долг</span></div>
+            <div class="stat-val" id="fin-debt" style="font-size:28px;">--</div>
+            <button onclick="finAction('debt')" style="width:100%; padding:12px; background:#ff453a; border:none; border-radius:8px; color:#fff; font-weight:bold; margin-top:10px;">Погасить</button>
         </div>
     </div>
 
-    <button class="fab-save" onclick="saveAll()">💾</button>
+    <button class="fab-save" onclick="saveGame()">💾</button>
 
     <nav class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('tab-dash', this)"><div class="nav-icon">🏠</div><div class="nav-label">Главная</div></div>
-        <div class="nav-item" onclick="switchTab('tab-health', this)"><div class="nav-icon">❤️</div><div class="nav-label">Здоровье</div></div>
-        <div class="nav-item" onclick="switchTab('tab-habits', this)"><div class="nav-icon">✅</div><div class="nav-label">Привычки</div></div>
-        <div class="nav-item" onclick="switchTab('tab-finance', this)"><div class="nav-icon">💰</div><div class="nav-label">Финансы</div></div>
+        <div class="nav-item active" onclick="switchTab('tab-hero', this)"><div class="nav-icon">🛡️</div><div class="nav-label">Герой</div></div>
+        <div class="nav-item" onclick="switchTab('tab-health', this)"><div class="nav-icon">❤️</div><div class="nav-label">Тело</div></div>
+        <div class="nav-item" onclick="switchTab('tab-finance', this)"><div class="nav-icon">💰</div><div class="nav-label">Золото</div></div>
     </nav>
 
     <script>
         const tg = Telegram.WebApp; tg.ready(); tg.expand();
         const params = new URLSearchParams(window.location.search);
-        let pendingUpdates = {};
 
-        // --- ДАННЫЕ ВЕСА ---
-        let currentWeight = params.get('w') || '110.5';
-        function updateWeightUI(val) { document.getElementById('weight-val').innerText = val; document.getElementById('dash-weight-val').innerText = val; }
-        updateWeightUI(currentWeight);
+        // --- RPG SYSTEM ---
+        // Имитация данных (в будущем придут из URL или базы)
+        let rpg = {
+            body: { lvl: 1, xp: 0, max: 100 },
+            mind: { lvl: 1, xp: 0, max: 100 },
+            spirit: { lvl: 1, xp: 0, max: 100 }
+        };
 
-        document.getElementById('lvl-badge').innerText = 'LEVEL ' + (params.get('lvl') || '1');
-        document.getElementById('xp-fill').style.width = (params.get('xp') || '0') + '%';
-        document.getElementById('streak-val').innerText = '🔥 ' + (params.get('st') || '0');
+        // Дефолтные квесты
+        let quests = [
+            { id: 1, name: "Силовая Тренировка", type: "body", xp: 50, done: false },
+            { id: 2, name: "10.000 шагов", type: "body", xp: 30, done: false },
+            { id: 3, name: "Чтение (20 стр)", type: "mind", xp: 40, done: false },
+            { id: 4, name: "Английский (Урок)", type: "mind", xp: 30, done: false },
+            { id: 5, name: "Медитация / Тишина", type: "spirit", xp: 20, done: false },
+            { id: 6, name: "Ранний подъем (до 08:00)", type: "spirit", xp: 50, done: false }
+        ];
 
-        // --- ФИНАНСЫ (REAL MONEY) ---
-        let valDebt = parseFloat(params.get('d') || '4.7');
-        let valSav = parseFloat(params.get('s') || '0.0');
-        let tarDebt = parseFloat(params.get('td') || '5.0');
-        let tarSav = parseFloat(params.get('ts') || '1.0');
-
-        if (valDebt < 100) valDebt = valDebt * 1000000;
-        if (valSav < 100) valSav = valSav * 1000000;
-        if (tarDebt < 100) tarDebt = tarDebt * 1000000;
-        if (tarSav < 100) tarSav = tarSav * 1000000;
-
-        // 🔥 УМНОЕ ФОРМАТИРОВАНИЕ (БЕЗ ЛИШНИХ НУЛЕЙ)
-        function formatMoney(amount) {
-            if (amount >= 1000000) {
-                // Если миллионы. parseFloat отрезает "3.000" до "3"
-                let val = parseFloat((amount / 1000000).toFixed(3)); 
-                return val.toString().replace('.', ',') + ' млн ₽';
-            }
-            if (amount >= 1000) {
-                // Если тысячи
-                let val = parseFloat((amount / 1000).toFixed(1)); 
-                return val.toString().replace('.', ',') + ' тыс ₽';
-            }
-            return amount + ' ₽';
+        // Загрузка сохраненных (если есть в URL) - упрощенно
+        const savedQuests = params.get('q'); 
+        if(savedQuests) {
+            // Тут была бы логика парсинга "101010", но для MVP оставим дефолт
         }
 
-        function updateFinanceAll() {
-            // Тексты
-            const strDebt = formatMoney(valDebt);
-            const strSav = formatMoney(valSav);
-
-            document.getElementById('fin-debt-val').innerText = strDebt;
-            document.getElementById('fin-sav-val').innerText = strSav;
-            document.getElementById('dash-debt-val').innerText = strDebt;
-            document.getElementById('dash-sav-val').innerText = strSav;
-
-            // Цели
-            document.getElementById('goal-debt').innerText = "Старт: " + formatMoney(tarDebt);
-            document.getElementById('goal-sav').innerText = "Цель: " + formatMoney(tarSav);
-
-            // Полоски
-            let pDebt = 0; if(tarDebt > 0) pDebt = (valDebt / tarDebt) * 100;
-            let pSav = 0; if(tarSav > 0) pSav = (valSav / tarSav) * 100;
-            if(pSav > 100) pSav = 100; if(pDebt > 100) pDebt = 100;
-            
-            document.getElementById('bar-debt').style.width = pDebt + '%';
-            document.getElementById('bar-sav').style.width = pSav + '%';
-        }
-        updateFinanceAll();
-
-        // ТРАНЗАКЦИЯ (КНОПКА ПОГАСИТЬ/ПОПОЛНИТЬ)
-        function transactMoney(type) {
-            let inputEl, amount;
-            if (type === 'debt') {
-                inputEl = document.getElementById('input-debt');
-                amount = parseFloat(inputEl.value);
-                if (!isNaN(amount) && amount > 0) {
-                    valDebt -= amount; // Долг уменьшаем
-                    if (valDebt < 0) valDebt = 0;
-                    pendingUpdates['debt'] = valDebt;
-                    inputEl.value = ''; 
-                }
-            } else {
-                inputEl = document.getElementById('input-sav');
-                amount = parseFloat(inputEl.value);
-                if (!isNaN(amount) && amount > 0) {
-                    valSav += amount; // Накопления увеличиваем
-                    pendingUpdates['savings'] = valSav;
-                    inputEl.value = ''; 
-                }
-            }
-            updateFinanceAll();
-            tg.HapticFeedback.notificationOccurred('success');
-        }
-
-        // РЕДАКТИРОВАНИЕ (КАРАНДАШ)
-        function editMoneyTotal(type) {
-            let oldVal = (type === 'debt') ? valDebt : valSav;
-            let newVal = prompt("Точная сумма (руб):", oldVal);
-            if (newVal) {
-                newVal = parseFloat(newVal.replace(',', '.').replace(/\s/g, ''));
-                if (type === 'debt') { valDebt = newVal; pendingUpdates['debt'] = newVal; }
-                else { valSav = newVal; pendingUpdates['savings'] = newVal; }
-                updateFinanceAll();
-            }
-        }
-
-        // НАСТРОЙКА ЦЕЛИ
-        function setTarget(type) {
-            let oldTar = (type === 'debt') ? tarDebt : tarSav;
-            let newTar = prompt((type === 'debt' ? "Начальный долг (руб):" : "Цель (руб):"), oldTar);
-            if (newTar) {
-                newTar = parseFloat(newTar.replace(',', '.').replace(/\s/g, ''));
-                if (type === 'debt') { tarDebt = newTar; pendingUpdates['target_debt'] = newTar; }
-                else { tarSav = newTar; pendingUpdates['target_savings'] = newTar; }
-                updateFinanceAll();
-            }
-        }
-
-        // --- ГРАФИК ---
-        const hStr = params.get('h') || '110'; const hDateStr = params.get('hd') || '01.01';
-        const hData = hStr.split(',').map(parseFloat); const hDates = hDateStr.split(',');
-        const ctx = document.getElementById('weightChart').getContext('2d');
-        const gr = ctx.createLinearGradient(0,0,0,200); gr.addColorStop(0, 'rgba(168, 85, 247, 0.4)'); gr.addColorStop(1, 'rgba(168, 85, 247, 0.0)');
-        new Chart(ctx, { 
-            type: 'line', data: { labels: hDates, datasets: [{ data: hData, borderColor: '#a855f7', backgroundColor: gr, borderWidth: 3, pointRadius: 4, pointBackgroundColor: '#1c1c1e', pointBorderColor: '#a855f7', fill: true, tension: 0.3 }] }, 
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: '#333', titleColor: '#fff', bodyColor: '#fff', displayColors: false, callbacks: { label: function(context) { return context.raw + ' кг'; } } } }, scales: { x: { display: true, grid: { display: false }, ticks: { color: '#666' } }, y: { display: true, position: 'right', grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#666' } } } } });
-
-        // --- ПРИВЫЧКИ ---
-        const rawHabits = params.get('list') || "";
-        const statsStr = params.get('stats') || "";
-        let userHabits = [];
-        if (rawHabits) { const names = rawHabits.split(','); names.forEach((name, i) => { if(name.trim()) userHabits.push({ name: name.trim(), checked: statsStr[i] === '1' }); }); }
-
-        function renderHabits() {
-            const fullContainer = document.getElementById('habits-container'); fullContainer.innerHTML = ''; 
-            const dashContainer = document.getElementById('dash-habits-container'); dashContainer.innerHTML = '';
-            let unfinishedCount = 0;
-            userHabits.forEach((habit, index) => {
-                const row = document.createElement('div'); row.className = 'habit-row';
-                row.innerHTML = `<div style="display:flex; align-items:center;"><button class="delete-habit" onclick="deleteHabit(${index})">✕</button><span class="habit-name">${habit.name}</span></div><label class="switch"><input type="checkbox" onchange="toggleHabit(${index})" ${habit.checked ? 'checked' : ''}><span class="slider"></span></label>`;
-                fullContainer.appendChild(row);
-                if (!habit.checked) {
-                    unfinishedCount++; const dashRow = document.createElement('div'); dashRow.className = 'habit-row';
-                    dashRow.innerHTML = `<span class="habit-name">${habit.name}</span><label class="switch"><input type="checkbox" onchange="toggleHabit(${index})"><span class="slider"></span></label>`;
-                    dashContainer.appendChild(dashRow);
-                }
+        function renderRPG() {
+            // Отрисовка баров
+            ['body', 'mind', 'spirit'].forEach(type => {
+                const stat = rpg[type];
+                const pct = (stat.xp / stat.max) * 100;
+                document.getElementById(`lvl-${type}`).innerText = `Lvl ${stat.lvl}`;
+                document.getElementById(`bar-${type}`).style.width = `${pct}%`;
             });
-            document.getElementById('dash-empty-msg').style.display = (unfinishedCount === 0 && userHabits.length > 0) ? 'block' : 'none';
+
+            // Общий уровень
+            const totalLvl = rpg.body.lvl + rpg.mind.lvl + rpg.spirit.lvl;
+            document.getElementById('total-lvl').innerText = `LVL ${totalLvl}`;
+
+            // Класс героя
+            let mainStat = 'body';
+            if (rpg.mind.lvl > rpg.body.lvl && rpg.mind.lvl > rpg.spirit.lvl) mainStat = 'mind';
+            if (rpg.spirit.lvl > rpg.body.lvl && rpg.spirit.lvl > rpg.mind.lvl) mainStat = 'spirit';
+            
+            const titles = {
+                body: "АТЛЕТ",
+                mind: "СТРАТЕГ",
+                spirit: "МОНАХ"
+            };
+            // Если все равны
+            if (rpg.body.lvl === rpg.mind.lvl && rpg.body.lvl === rpg.spirit.lvl) document.getElementById('hero-class').innerText = "НОВИЧОК";
+            else document.getElementById('hero-class').innerText = titles[mainStat];
+
+            renderQuests();
         }
-        function addNewHabit() { const name = prompt("Название:"); if (name && name.trim()) { userHabits.push({ name: name.trim(), checked: false }); renderHabits(); } }
-        function deleteHabit(index) { if(confirm('Удалить?')) { userHabits.splice(index, 1); renderHabits(); } }
-        function toggleHabit(index) { userHabits[index].checked = !userHabits[index].checked; tg.HapticFeedback.impactOccurred('light'); renderHabits(); }
-        renderHabits();
 
-        // --- ПРОЧЕЕ ---
-        const savedEnergy = params.get('en') || '50'; const savedSleep = parseFloat(params.get('sl') || '7.0');
-        document.getElementById('energy-slider').value = savedEnergy; let currentSleep = savedSleep; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; updateEnergy(savedEnergy);
-        function updateEnergy(val) { let e="😐"; if(val<20)e="🧟‍♂️";else if(val<40)e="🥱";else if(val<60)e="😐";else if(val<80)e="🙂";else e="🚀"; document.getElementById('energy-display').innerText=val+"% "+e; }
-        function changeSleep(delta) { currentSleep += delta; if(currentSleep<0)currentSleep=0; if(currentSleep>15)currentSleep=15; document.getElementById('sleep-val').innerText = currentSleep.toFixed(1) + " ч"; tg.HapticFeedback.selectionChanged(); }
-        function switchTab(tabId, el) { document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById(tabId).classList.add('active'); el.classList.add('active'); tg.HapticFeedback.selectionChanged(); }
-        function editWeightLocally() { let v = prompt("Новый вес (кг):", currentWeight); if(v) { v = v.replace(',', '.'); currentWeight = v; updateWeightUI(v); pendingUpdates['weight'] = v; } }
-        const mapData = params.get('map') || "0000000000000000000000000000"; const heatmap = document.getElementById('heatmap'); for (let char of mapData) { const div = document.createElement('div'); div.className = 'day-sq lv-' + char; heatmap.appendChild(div); }
+        function renderQuests() {
+            const c = document.getElementById('quests-container');
+            c.innerHTML = '';
+            quests.forEach((q, idx) => {
+                const div = document.createElement('div');
+                div.className = `quest-item type-${q.type} ${q.done ? 'done' : ''}`;
+                div.innerHTML = `
+                    <div class="quest-info">
+                        <div class="quest-name">${q.name}</div>
+                        <div class="quest-reward">+${q.xp} XP (${translateType(q.type)})</div>
+                    </div>
+                    <div class="quest-check ${q.done ? 'checked' : ''}" onclick="toggleQuest(${idx})">
+                        ${q.done ? '✔' : ''}
+                    </div>
+                `;
+                c.appendChild(div);
+            });
+        }
 
-        function saveAll() {
+        function translateType(t) {
+            if(t==='body') return 'Тело';
+            if(t==='mind') return 'Разум';
+            return 'Дух';
+        }
+
+        function toggleQuest(idx) {
+            const q = quests[idx];
+            if (!q.done) {
+                // Выполнение
+                q.done = true;
+                addXP(q.type, q.xp);
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                // Отмена
+                q.done = false;
+                removeXP(q.type, q.xp);
+                tg.HapticFeedback.impactOccurred('light');
+            }
+            renderRPG();
+        }
+
+        function addXP(type, amount) {
+            const s = rpg[type];
+            s.xp += amount;
+            if (s.xp >= s.max) {
+                s.xp = s.xp - s.max;
+                s.lvl++;
+                s.max = Math.floor(s.max * 1.2); // Сложнее качать
+                alert(`🆙 LEVEL UP! Твоя характеристика ${translateType(type)} повышена!`);
+            }
+        }
+        function removeXP(type, amount) {
+            const s = rpg[type];
+            s.xp -= amount;
+            if (s.xp < 0) {
+                if (s.lvl > 1) { s.lvl--; s.max = Math.floor(s.max / 1.2); s.xp = s.max + s.xp; } 
+                else { s.xp = 0; }
+            }
+        }
+
+        function addNewQuest() {
+            const name = prompt("Название квеста:");
+            if(!name) return;
+            const typeStr = prompt("Тип (1-Тело, 2-Разум, 3-Дух):");
+            let type = 'body';
+            if(typeStr === '2') type = 'mind';
+            if(typeStr === '3') type = 'spirit';
+            quests.push({ id: Date.now(), name: name, type: type, xp: 30, done: false });
+            renderRPG();
+        }
+
+        // --- FINANCE & HEALTH LOGIC (SIMPLIFIED) ---
+        let weight = params.get('w') || '109.6';
+        document.getElementById('val-weight').innerText = weight + ' кг';
+        document.getElementById('val-fat').innerText = (params.get('fat') || '31.8') + '%';
+
+        let debt = 4.7; // млн
+        let sav = 0.0;
+        function updateFinUI() {
+            document.getElementById('fin-debt').innerText = debt.toFixed(2) + ' млн';
+            document.getElementById('fin-sav').innerText = sav.toFixed(2) + ' млн';
+        }
+        updateFinUI();
+
+        function finAction(type) {
+            let val = prompt("Сумма (млн):");
+            if(val) {
+                if(type === 'sav') sav += parseFloat(val);
+                if(type === 'debt') debt -= parseFloat(val);
+                updateFinUI();
+            }
+        }
+
+        function editWeight() {
+            let w = prompt("Новый вес:");
+            if(w) { weight = w; document.getElementById('val-weight').innerText = w + ' кг'; }
+        }
+
+        function updateSleepUI(val) { document.getElementById('sleep-val').innerText = val; }
+
+        // --- CHART ---
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: { labels: ['10.02', '12.02', '14.02', '16.02', '18.02'], datasets: [{ data: [113, 112, 111, 110.5, 109.6], borderColor: '#ff3b30', tension: 0.3 }] },
+            options: { plugins: { legend: {display:false} }, scales: { x: {display:false}, y: {display:true, position:'right', grid:{color:'#333'}} } }
+        });
+
+        // --- TABS ---
+        function switchTab(id, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        // --- SAVE ---
+        function saveGame() {
             tg.HapticFeedback.notificationOccurred('success');
-            const habitsMap = {}; userHabits.forEach(h => { habitsMap[h.name] = h.checked; });
-            const btn = document.querySelector('.fab-save'); btn.innerHTML = '✅';
-            const finalData = { type: 'batch_habits', habits: habitsMap, energy: document.getElementById('energy-slider').value, sleep: currentSleep, note: document.getElementById('daily-note').value, earned: document.getElementById('money-earned').value, ...pendingUpdates };
-            setTimeout(() => { tg.sendData(JSON.stringify(finalData)); }, 500);
+            // Собираем данные для бота (в JSON)
+            const data = {
+                type: 'save_rpg',
+                rpg_state: rpg,
+                quests: quests.map(q => ({n: q.name, t: q.type, d: q.done})), // Сохраняем состояние квестов
+                weight: weight,
+                debt: debt,
+                savings: sav
+            };
+            // В реальном боте тут отправка
+            setTimeout(() => { tg.sendData(JSON.stringify(data)); }, 300);
         }
+
+        renderRPG();
     </script>
 </body>
 </html>
